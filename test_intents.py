@@ -1,12 +1,12 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-from processor import TextAnalysisProcessor  # Import your processor class
+from processor import TextAnalysisProcessor  
 
-# Load env for GROQ_API_KEY (if not already loaded)
+
 load_dotenv()
 
-# Initialize processor (same as in app.py)
+# Initialize processor 
 processor = TextAnalysisProcessor()
 
 # Load test dataset
@@ -31,7 +31,7 @@ for idx, row in df.iterrows():
         conf = result.confidence_score
         reasoning = result.reasoning
         
-        is_correct = predicted.strip().lower() == target.strip().lower()  # Case-insensitive match
+        is_correct = predicted.strip().lower() == target.strip().lower()  # Case-insensitive
         if is_correct:
             correct_count += 1
         
@@ -59,8 +59,6 @@ results_df = pd.DataFrame(results)
 results_df.to_csv('intent_test_results.csv', index=False)
 print("\nResults saved to 'intent_test_results.csv'")
 
-# Summary
-# total = len(results_df[results_df['error'].isna()])  # Exclude errors
 # Summary - safely handle 'error' column
 if 'error' in results_df.columns:
     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
@@ -69,7 +67,7 @@ else:
 if 'error' in results_df.columns:
     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
 else:
-    total = len(results_df)  # If no errors ever, all are successful
+    total = len(results_df)  # If no errors
 accuracy = (correct_count / total) * 100 if total > 0 else 0
 print(f"\nAccuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
 
