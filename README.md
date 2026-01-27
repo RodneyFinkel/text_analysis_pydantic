@@ -1,6 +1,7 @@
 GROQ_API_KEY is needed inside a .env file
+Clone the repository
 
-# Create a virtual environment to keep dependencies isolated
+# Create a virtual environment
 python -m venv venv
 
 # Activate the virtual environment
@@ -14,6 +15,8 @@ pip install -r requirements.txt
 
 Launch the Streamlit server to view the app in your browser:
 streamlit run app.py
+
+Alternatively use this link for a live demo: 
 
 For the app to run correctly, ensure your folder looks like this:
 .
