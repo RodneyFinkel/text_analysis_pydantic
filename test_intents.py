@@ -59,22 +59,40 @@ results_df = pd.DataFrame(results)
 results_df.to_csv('intent_test_results.csv', index=False)
 print("\nResults saved to 'intent_test_results.csv'")
 
-# Summary - safely handle 'error' column
-if 'error' in results_df.columns:
-    total = len(results_df[results_df['error'].isna()])  # Only count successful runs
-else:
-    total = len(results_df)  # If no errors ever, all are successful# Summary - safely handle 'error' column
-if 'error' in results_df.columns:
-    total = len(results_df[results_df['error'].isna()])  # Only count successful runs
-else:
-    total = len(results_df)  # If no errors
-accuracy = (correct_count / total) * 100 if total > 0 else 0
-print(f"\nAccuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
+# # Summary - safely handle 'error' column
+# if 'error' in results_df.columns:
+#     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
+# else:
+#     total = len(results_df)  # If no errors ever, all are successful# Summary - safely handle 'error' column
+# if 'error' in results_df.columns:
+#     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
+# else:
+#     total = len(results_df)  # If no errors
+# accuracy = (correct_count / total) * 100 if total > 0 else 0
+# print(f"\nAccuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
 
-# Show mismatches for confusion analysis
+# # Show mismatches for confusion analysis
+# mismatches = results_df[results_df['correct'] == False]
+# print("\nMismatches (confusion cases):")
+# if mismatches.empty:
+#     print("No mismatches! All clear cases matched.")
+# else:
+#     print(mismatches[['message', 'target', 'predicted', 'confidence', 'reasoning', 'error']])
+
+# Calculate Accuracy
+total = len(results_df)
+accuracy = (correct_count / total) * 100 if total > 0 else 0
+print(f"Accuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
+
+# --- FIXED SECTION: Safe Mismatch Printing ---
 mismatches = results_df[results_df['correct'] == False]
-print("\nMismatches (confusion cases):")
-if mismatches.empty:
-    print("No mismatches! All clear cases matched.")
+
+if not mismatches.empty:
+    print("\nMismatches (Confusion Cases):")
+    # Define desired columns
+    desired_cols = ['message', 'target', 'predicted', 'confidence', 'reasoning', 'error']
+    # Only select columns that actually exist in the DataFrame
+    available_cols = [col for col in desired_cols if col in mismatches.columns]
+    print(mismatches[available_cols])
 else:
-    print(mismatches[['message', 'target', 'predicted', 'confidence', 'reasoning', 'error']])
+    print("\nNo mismatches found! Perfect accuracy.")
