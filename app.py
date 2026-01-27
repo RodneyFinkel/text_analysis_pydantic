@@ -14,7 +14,7 @@ def get_processor():
 processor = get_processor()
 
 st.title("matrixDNA Text Analysis App")
-st.markdown("Analyze text using structured LLM orchestration.")
+st.markdown("Analyze text using LLM's and Pydantic.")
 
 #  sidebar
 task = st.sidebar.selectbox("Choose Analysis Type", 
@@ -22,7 +22,7 @@ task = st.sidebar.selectbox("Choose Analysis Type",
 
 user_input = ""
 
-# Handle inputs for Summarization and Topics
+# Handle inputs for Summarization and Topic extraction
 if task in ["Summarize Long Text", "Extract Key Topics"]:
     input_type = st.radio("Input Source", ["Upload PDF", "Paste Text"])
     
