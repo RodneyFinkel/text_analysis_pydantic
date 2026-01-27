@@ -59,25 +59,6 @@ results_df = pd.DataFrame(results)
 results_df.to_csv('intent_test_results.csv', index=False)
 print("\nResults saved to 'intent_test_results.csv'")
 
-# # Summary - safely handle 'error' column
-# if 'error' in results_df.columns:
-#     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
-# else:
-#     total = len(results_df)  # If no errors ever, all are successful# Summary - safely handle 'error' column
-# if 'error' in results_df.columns:
-#     total = len(results_df[results_df['error'].isna()])  # Only count successful runs
-# else:
-#     total = len(results_df)  # If no errors
-# accuracy = (correct_count / total) * 100 if total > 0 else 0
-# print(f"\nAccuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
-
-# # Show mismatches for confusion analysis
-# mismatches = results_df[results_df['correct'] == False]
-# print("\nMismatches (confusion cases):")
-# if mismatches.empty:
-#     print("No mismatches! All clear cases matched.")
-# else:
-#     print(mismatches[['message', 'target', 'predicted', 'confidence', 'reasoning', 'error']])
 
 # Calculate Accuracy
 total = len(results_df)
