@@ -65,7 +65,7 @@ total = len(results_df)
 accuracy = (correct_count / total) * 100 if total > 0 else 0
 print(f"Accuracy: {accuracy:.2f}% ({correct_count}/{total} correct)")
 
-# --- FIXED SECTION: Safe Mismatch Printing ---
+# FIXED SECTION: Safe Mismatch Printing
 mismatches = results_df[results_df['correct'] == False]
 
 if not mismatches.empty:
