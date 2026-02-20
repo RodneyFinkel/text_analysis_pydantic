@@ -44,7 +44,7 @@ if task in ["Summarize Long Text", "Extract Key Topics"]:
 if task == "Intent Classification":
     user_input = st.text_input("Enter a user message (1-3 sentences):")
 elif task == "Query Database":
-    user_input = st.text_area("Enter a natural language question about the student_grades.db database.", height=150)  
+    user_input = st.text_area("🧠 Enter a natural language question to the database.", height=100)  
         
 
 # Processing logic
@@ -73,10 +73,11 @@ if st.button("Run Analysis"):
                     st.write(f"**Reasoning:** {result.reasoning}")
                     
                 elif task == "Query Database":
+                    st.title("📊 Talk to Your Database")
                     result = processor.query_database(user_input)
-                    st.subheader("Generated SQL Query")
+                    st.subheader("🧠 Generated SQL Query")
                     st.code(result["sql"], language="sql")
-                    st.subheader("Query Results")
+                    st.subheader("📈 Query Results")
                     st.write(result["results"])
                     
             except Exception as e:
