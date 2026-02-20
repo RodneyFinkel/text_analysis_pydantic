@@ -13,12 +13,18 @@ def get_processor():
 
 processor = get_processor()
 
-st.title("matrixDNA Text Analysis App")
-st.markdown("Analyze text using LLM's and Pydantic.")
+st.title("Text Analysis and SQL Generator Tool")
+st.markdown("Analyze text using and query your Database.\n\n" 
+    "Use Cases:\n"
+    "1. Summarize long documents into concise bullet points and a key conclusion.\n"
+    "2. Extract key topics/themes from text with explanations.\n"
+    "3. Classify user intent into predefined categories with confidence scores and reasoning.\n"
+    "4. Generate and execute SQL queries against a database based on natural language questions."
+)
 
 #  sidebar
 task = st.sidebar.selectbox("Choose Analysis Type", 
-    ["Summarize Long Text", "Extract Key Topics", "Intent Classification"])
+    ["Summarize Long Text", "Extract Key Topics", "Intent Classification", "Query Database"])
 
 user_input = ""
 
@@ -34,9 +40,12 @@ if task in ["Summarize Long Text", "Extract Key Topics"]:
     else:
         user_input = st.text_area("Paste text (at least 500 words for summary)", height=300)
 
-# Handle inputs for Intent Classification
-else:
+# Handle inputs for Intent Classification and Query Database
+if task == "Intent Classification":
     user_input = st.text_input("Enter a user message (1-3 sentences):")
+elif task == "Query Database":
+    user_input = st.text_area("Enter a natural language question about the student_grades.db database.", height=150)  
+        
 
 # Processing logic
 if st.button("Run Analysis"):
@@ -62,6 +71,13 @@ if st.button("Run Analysis"):
                     result = processor.classify_intent(user_input)
                     st.metric("Predicted Intent", result.intent, f"{result.confidence_score:.2f} confidence")
                     st.write(f"**Reasoning:** {result.reasoning}")
+                    
+                elif task == "Query Database":
+                    result = processor.query_database(user_input)
+                    st.subheader("Generated SQL Query")
+                    st.code(result["sql"], language="sql")
+                    st.subheader("Query Results")
+                    st.write(result["results"])
                     
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
