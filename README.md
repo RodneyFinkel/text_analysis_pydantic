@@ -26,6 +26,12 @@ For the app to run correctly, ensure your folder looks like this:
 ├── dataset.csv         # The 50-example intent dataset
 └── requirements.txt    # Project dependencies
 
+<img width="1902" height="899" alt="Screenshot 2026-02-20 at 21 20 06" src="https://github.com/user-attachments/assets/f02b4832-e197-4977-8545-5c661ec6755d" />
+
+<img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 20 38" src="https://github.com/user-attachments/assets/3018ad5d-e9f4-47c0-bf95-6c1610c21978" />
+
+<img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 21 04" src="https://github.com/user-attachments/assets/7a9cf355-75b8-40e7-9836-f42fb399917c" />
+
 Why Llama 3.3 70B Versatile?
 
 Llama 3.3 70B's performance is comparable to much larger models. This model also scores high on benchmarks (92.1 on IFEval) for following user instructions. This is important  because it ensures the model adheres strictly to the constraints defined in the Pydantic schemas without chatter or formatting errors.
