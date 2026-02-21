@@ -40,8 +40,8 @@ class TextAnalysisProcessor:
         )
         self.db = SQLDatabase.from_uri("sqlite:///student_grades.db")
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 4000,
-            chunk_overlap = 200
+            chunk_size = 500,
+            chunk_overlap = 50
         )
 
     def summarize(self, text: str) -> SummaryOutput:
@@ -143,7 +143,11 @@ class TextAnalysisProcessor:
                 generated_sql = generated_sql.strip()
             
             # Execute the generated SQL and return both SQL and results
-            results = self.db.run(generated_sql)
+            # results = self.db.run(generated_sql)
+            results = self.db._execute(generated_sql)
             return {"sql": generated_sql, "results": results}
         except Exception as e:
-            return {"sql": "", "results": f"Error executing database query: {str(e)}"}  
+            return {"sql": generated_sql if 'generated_sql' in locals() else "", "results": f"Error executing database query: {str(e)}"}
+            # return {"sql": "", "results": f"Error executing database query: {str(e)}"}  
+            
+ 

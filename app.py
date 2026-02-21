@@ -2,6 +2,7 @@ import streamlit as st
 import PyPDF2
 from processor import TextAnalysisProcessor
 from docx import Document
+import pandas as pd
 
 
 st.set_page_config(page_title="matrixDNA Analysis Tool", layout="centered")
@@ -78,7 +79,17 @@ if st.button("Run Analysis"):
                     st.subheader("🧠 Generated SQL Query")
                     st.code(result["sql"], language="sql")
                     st.subheader("📈 Query Results")
-                    st.write(result["results"])
+                    
+                    if isinstance(result["results"], str) and "Error" in result["results"]:
+                        st.error(result["results"])
+                    else:
+                        try:
+                            df = pd.DataFrame(result["results"])
+                            st.dataframe(df)  # Interactive table; use st.table(df) for static
+                        except Exception as e:
+                            st.error(f"Error displaying results: {str(e)}")
+                            
+                    # st.write(result["results"])
                     
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
