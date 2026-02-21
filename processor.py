@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.utilities import SQLDatabase
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
+import sqlparse
 
 load_dotenv()
 
@@ -53,25 +54,29 @@ class TextAnalysisProcessor:
         chain = prompt | structured_llm
         return chain.invoke({"text": text})
     
+    def synthesize_summaries(self, summaries: List[str]) -> SummaryOutput:
+        """Synthesize multiple summary conclusions into one coherent summary (REDUCE step)"""
+        structured_llm = self.llm.with_structured_output(SummaryOutput)
+        combined = "\n".join(summaries)
+        prompt = ChatPromptTemplate.from_template(
+            "These are summaries of different document sections. "
+            "Synthesize them into one coherent summary with 3-6 bullet points and a single key conclusion. "
+            "Ensure the final summary captures the essence of all sections.\n\nSection Summaries:\n{text}"
+        )
+        chain = prompt | structured_llm
+        return chain.invoke({"text": combined})
+    
     def summarize2(self, text: str, depth: int = 0) -> SummaryOutput:
         MAX_DEPTH = 2
         if len(text) > 6000 and depth < MAX_DEPTH:
             chunks = self.text_splitter.split_text(text)
             # make partial summaries a list
             partial_summaries = [self.summarize2(chunk, depth + 1 ).key_conclusion for chunk in chunks] # each partial summary is a pydantic object and the key conclussion is extracted from it
-            # combined text inserts a new instuction: 
-            # " ".join(partial_summaries) just feeds the concatenated summaries as plain text with no extra instruction, so the model may treat it as one long passage and not perform an explicit synthesis step.
-            combined_text = "Combine these summaries into a final coherent summary:\n" + "\n".join(partial_summaries)
-            return self.summarize2(combined_text, depth + 1)
+            # REDUCE: Use dedicated synthesize method to properly combine summaries
+            return self.synthesize_summaries(partial_summaries)
         
-        
-        prompt = ChatPromptTemplate.from_template(
-            "Summarize the following text into 3-6 bullet points and provide a key conclusion. "
-            "Preserve main ideas and key facts.\n\nText: {text}"
-        )
-        structured_llm = self.llm.with_structured_output(SummaryOutput)
-        chain = prompt | structured_llm
-        return chain.invoke({"text": text})
+        # Base case: text is small enough or max depth reached
+        return self.summarize(text)
 
     def extract_topics(self, text: str) -> TopicOutput:
         """Use Case 2: Topic Extraction"""

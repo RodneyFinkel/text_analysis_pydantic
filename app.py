@@ -73,7 +73,7 @@ if st.button("Run Analysis"):
                     st.write(f"**Reasoning:** {result.reasoning}")
                     
                 elif task == "Query Database":
-                    st.title("📊 Talk to Your Database")
+                    st.title("Talk to Your Database")
                     result = processor.query_database(user_input)
                     st.subheader("🧠 Generated SQL Query")
                     st.code(result["sql"], language="sql")
