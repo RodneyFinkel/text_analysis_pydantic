@@ -32,6 +32,12 @@ For the app to run correctly, ensure your folder looks like this:
 
 <img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 21 04" src="https://github.com/user-attachments/assets/7a9cf355-75b8-40e7-9836-f42fb399917c" />
 
+<img width="1898" height="966" alt="Screenshot 2026-03-05 at 23 30 12" src="https://github.com/user-attachments/assets/b400b5bb-0c6e-45a7-ba30-89ac457ec5e2" />
+
+<img width="1905" height="966" alt="Screenshot 2026-03-05 at 23 30 49" src="https://github.com/user-attachments/assets/0138e516-8167-4720-88f3-370c7c4edb6d" />
+
+
+
 Why Llama 3.3 70B Versatile?
 
 Llama 3.3 70B's performance is comparable to much larger models. This model also scores high on benchmarks (92.1 on IFEval) for following user instructions. This is important  because it ensures the model adheres strictly to the constraints defined in the Pydantic schemas without chatter or formatting errors.
