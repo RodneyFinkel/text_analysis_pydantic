@@ -5,7 +5,7 @@ from langchain_groq import ChatGroq
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.utilities import SQLDatabase
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser # change to StrOutputParser for raw string output in DB queries
 from dotenv import load_dotenv
 import sqlparse
 
