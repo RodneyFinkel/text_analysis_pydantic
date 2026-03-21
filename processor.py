@@ -8,7 +8,7 @@ from langchain_community.utilities import SQLDatabase
 from langchain_core.output_parsers import StrOutputParser # change to StrOutputParser instead of pydantic, for raw string output in DB queries
 from dotenv import load_dotenv
 import sqlparse
-# python code generator with ---st.code(result["sql"], language="sql") --- in app.py to format the SQL query output nicely in Streamlit and use for next method to build 
+# python code generator with ---st.code(result["python"], language="python") --- in app.py to format the SQL query output nicely in Streamlit and use for next method to build 
 load_dotenv()
 
 # Pydantic Schemas for Structured Output
