@@ -28,9 +28,9 @@ processor = get_processor()
 
 # ─── UI ────────────────────────────────────────────────────────────────────────
 
-st.markdown("<h1 style='color: #90EE90;'>Tool Calling Agent Demo</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: #ADD8E6;'>Tool Calling Agent Demo</h1>", unsafe_allow_html=True)
 st.markdown(
-    "<span style='color: #90EE90;'>Text analysis • Intent classification • Database querying • "
+    "<span style='color: #ADD8E6;'>Text analysis • Intent classification • Database querying • "
     "**Conversational AI Agent with multi-DB support for natural language processing**</span>",
     unsafe_allow_html=True
 )
