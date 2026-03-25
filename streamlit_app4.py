@@ -28,10 +28,10 @@ processor = get_processor()
 
 # ─── UI ────────────────────────────────────────────────────────────────────────
 
-st.title("matrixDNA Analysis Tool")
+st.title("Tool Calling Agent Demo")
 st.markdown(
     "Text analysis • Intent classification • Database querying • "
-    "**Conversational AI Agent with multi-DB support**"
+    "**Conversational AI Agent with multi-DB support for natural language processing**"
 )
 
 # Sidebar selector
