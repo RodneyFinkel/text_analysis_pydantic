@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-st.set_page_config(page_title="matrixDNA Analysis Tool", layout="wide")
+st.set_page_config(page_title="Tool Calling Agent", layout="wide")
 
 # ─── Cached instances ──────────────────────────────────────────────────────────
 
