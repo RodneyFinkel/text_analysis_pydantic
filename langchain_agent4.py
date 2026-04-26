@@ -125,6 +125,7 @@ class AIAgent:
 
     def _execute_db_query(self, db: SQLDatabase, question: str) -> Dict[str, Any]:
         try:
+            schema = db.get_table_info()
             prompt = ChatPromptTemplate.from_template("""
             Given the schema, write a correct SQL query to answer the question.
             Return ONLY the SQL query - no explanation, no markdown.
@@ -137,28 +138,35 @@ class AIAgent:
             """)
             chain = prompt | self.llm | StrOutputParser()
 
-            sql = chain.invoke({
-                "schema": db.get_table_info(),
+            raw_sql = chain.invoke({
+                "schema": schema,
                 "question": question
-            }).strip()
+            })
 
             # Clean common markdown fences
-            if sql.startswith("```"):
-                sql = sql.split("```", 2)[1 if sql.startswith("```sql") else 0].strip()
+            generated_sql = raw_sql.strip()
+            if generated_sql.startswith("```"):
+                generated_sql = generated_sql.split("```")[1]
+                if generated_sql.startswith("sql"):
+                    generated_sql = generated_sql[3:]
+                generated_sql = generated_sql.strip()
+            elif generated_sql.lower().startswith("sql "):
+                generated_sql = generated_sql[4:].strip()
+               # sql = sql.split("```", 2)[1 if sql.startswith("```sql") else 0].strip()
 
-            rows = db._execute(sql)  # returns list of dicts
+            results = db._execute(generated_sql)  # returns list of dicts
 
             return {
-                "sql": sql,
-                "columns": list(rows[0].keys()) if rows else [],
-                "rows": [list(row.values()) for row in rows],
-                "row_count": len(rows),
+                "sql": generated_sql,
+                "columns": list(results[0].keys()) if results else [],
+                "rows": [list(row.values()) for row in results],
+                "row_count": len(results),
                 "error": None
             }
 
         except Exception as e:
             return {
-                "sql": "",
+                "sql": generated_sql if 'generated_sql' in locals() else "",
                 "columns": [],
                 "rows": [],
                 "row_count": 0,

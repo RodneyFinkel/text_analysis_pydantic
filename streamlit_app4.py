@@ -87,15 +87,27 @@ elif task == "Conversational AI Agent":
         with st.chat_message(role):
             if isinstance(content, dict) and content.get("type") == "db_result":
                 res = content["result"]
-                if res.get("error"):
-                    st.error(res["error"])
+                
+                # FIX: Dot notation for the Pydantic object in history
+                if res.error:
+                    st.error(res.error)
                 else:
-                    if res.get("sql"):
-                        st.code(res["sql"], language="sql")
-                    if res.get("row_count", 0) > 0:
-                        df = pd.DataFrame(res["rows"], columns=res["columns"])
+                    if res.sql:
+                        st.code(res.sql, language="sql")
+                    if res.row_count > 0:
+                        df = pd.DataFrame(res.rows, columns=res.columns)
                         st.dataframe(df, use_container_width=True)
-                        st.caption(f"{res['row_count']} row{'s' if res['row_count'] != 1 else ''}")
+                        st.caption(f"{res.row_count} row{'s' if res.row_count != 1 else ''}")
+                
+                # if res.get("error"):
+                #     st.error(res["error"])
+                # else:
+                #     if res.get("sql"):
+                #         st.code(res["sql"], language="sql")
+                #     if res.get("row_count", 0) > 0:
+                #         df = pd.DataFrame(res["rows"], columns=res["columns"])
+                #         st.dataframe(df, use_container_width=True)
+                #         st.caption(f"{res['row_count']} row{'s' if res['row_count'] != 1 else ''}")
                     else:
                         st.info("Query returned no rows.")
             else:
@@ -119,15 +131,30 @@ elif task == "Conversational AI Agent":
                     res = result["result"]
                     display_content = {"type": "db_result", "result": res}
 
-                    if res.get("error"):
-                        st.error(res["error"])
+                    # if res.get("error"):
+                    #     st.error(res["error"])
+                    
+                    # 1. Check for errors (Attribute access, not .get)
+                    if res.error:
+                        st.error(f"Database Error: {res.error}")
                     else:
-                        if res.get("sql"):
-                            st.code(res["sql"], language="sql")
-                        if res.get("row_count", 0) > 0:
-                            df = pd.DataFrame(res["rows"], columns=res["columns"])
+                        # 2. Display SQL (Attribute access)
+                        if res.sql:
+                            with st.expander("View Generated SQL"):                                
+                                st.code(res.sql, language="sql")
+                        #if res.get("sql"):
+                            #st.code(res["sql"], language="sql")
+                            
+                        # if res.get("row_count", 0) > 0:
+                        #     df = pd.DataFrame(res["rows"], columns=res["columns"])
+                        #     st.dataframe(df, use_container_width=True)
+                        #     st.caption(f"{res.row_count} row{'s' if res.row_count != 1 else ''}")
+                            
+                        # 3. Display Data (Attribute access)
+                        if res.rows:
+                            df = pd.DataFrame(res.rows, columns=res.columns)
                             st.dataframe(df, use_container_width=True)
-                            st.caption(f"{res['row_count']} row{'s' if res['row_count'] != 1 else ''}")
+                            st.caption(f"Query returned {res.row_count} rows.")
                         else:
                             st.info("Query returned no rows.")
 
