@@ -13,7 +13,7 @@ from langchain_community.utilities import SQLDatabase
 
 load_dotenv()
 
-# ─── Tool Input Schemas ────────────────────────────────────────────────────────
+# Tool Input Schemas
 
 class ReadFileSchema(BaseModel):
     path: str = Field(description="The path to the file to read.")
@@ -31,7 +31,7 @@ class QueryAnyDatabaseSchema(BaseModel):
     db_filename: str = Field(description="Exact filename of the .db file in the working directory (e.g. student_grades.db)")
     question: str = Field(description="Natural language question about this database.")
 
-# ─── Structured DB Result Format ───────────────────────────────────────────────
+# Structured DB Result Format 
 
 class DbQueryResult(BaseModel):
     sql: str
@@ -40,7 +40,6 @@ class DbQueryResult(BaseModel):
     row_count: int
     error: Optional[str] = None
 
-# ─── Agent ─────────────────────────────────────────────────────────────────────
 
 class AIAgent:
     def __init__(self, api_key: str, working_dir: str = "."):
@@ -89,7 +88,7 @@ class AIAgent:
             {"type": "function", "function": {"name": "query_any_database","description": "Query ANY .db file in the working directory.", "parameters": QueryAnyDatabaseSchema.model_json_schema()}},
         ]
 
-    # ─── Tool implementations ──────────────────────────────────────────────────
+    # Tool implementations
 
     def read_file(self, path: str) -> str:
         full_path = os.path.join(self.working_dir, path)
@@ -195,7 +194,7 @@ class AIAgent:
                 "error": f"Failed to open database {db_filename}: {str(e)}"
             }
 
-    # ─── Main chat method ──────────────────────────────────────────────────────
+    # Main chat method 
 
     def chat(self, user_input: str) -> Dict[str, Any]:
         """
