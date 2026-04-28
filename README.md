@@ -27,6 +27,12 @@ For the app to run correctly, ensure your folder looks like this:
 └── requirements.txt    # Project dependencies
 
 
+<img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 13 50" src="https://github.com/user-attachments/assets/39f833ed-853a-40df-84c3-7720723015d6" />
+
+<img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 14 22" src="https://github.com/user-attachments/assets/c657de24-b4f0-4824-95ca-44769282e408" />
+
+
+
 <img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 20 38" src="https://github.com/user-attachments/assets/3018ad5d-e9f4-47c0-bf95-6c1610c21978" />
 
 
