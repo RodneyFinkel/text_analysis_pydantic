@@ -18,13 +18,7 @@ streamlit run app.py
 
 Alternatively use this link for a live demo: 
 
-For the app to run correctly, ensure your folder looks like this:
-.
-├── .env                # API Keys (git-ignored)
-├── app.py              # Streamlit UI logic
-├── processor.py        # Pydantic schemas and LLM logic
-├── dataset.csv         # The 50-example intent dataset
-└── requirements.txt    # Project dependencies
+
 
 
 <img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 14 22" src="https://github.com/user-attachments/assets/c657de24-b4f0-4824-95ca-44769282e408" />
