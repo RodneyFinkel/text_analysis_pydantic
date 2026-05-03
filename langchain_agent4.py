@@ -10,6 +10,8 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.utilities import SQLDatabase
+from sqlglot import parse_one, exp
+
 
 load_dotenv()
 
@@ -121,6 +123,7 @@ class AIAgent:
             return chain.invoke({"schema": schema, "focus": focus})
         except Exception as e:
             return f"Could not generate suggestions: {str(e)}"
+        
 
     def _execute_db_query(self, db: SQLDatabase, question: str) -> Dict[str, Any]:
         try:
