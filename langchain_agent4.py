@@ -32,6 +32,10 @@ class SuggestQueriesSchema(BaseModel):
 class QueryAnyDatabaseSchema(BaseModel):
     db_filename: str = Field(description="Exact filename of the .db file in the working directory (e.g. student_grades.db)")
     question: str = Field(description="Natural language question about this database.")
+    
+class ListAvailableDatabasesSchema(BaseModel):
+    """No input parameters needed"""
+    pass
 
 # Structured DB Result Format 
 
@@ -103,6 +107,11 @@ class AIAgent:
             {"type": "function", "function": {"name": "query_database",   "description": "Query the default student_grades.db",  "parameters": QueryDatabaseSchema.model_json_schema()}},
             {"type": "function", "function": {"name": "suggest_interesting_queries", "description": "Suggest 4-6 interesting questions.", "parameters": SuggestQueriesSchema.model_json_schema()}},
             {"type": "function", "function": {"name": "query_any_database","description": "Query ANY .db file in the working directory.", "parameters": QueryAnyDatabaseSchema.model_json_schema()}},
+            {"type": "function", "function": {
+                "name": "list_available_databases", 
+                "description": "List only the SQLite .db database files available in the working directory. "
+                              "Use this first when the user asks about available databases or doesn't specify which one.",
+                "parameters": ListAvailableDatabasesSchema.model_json_schema()}},
         ]
 
     # Tool implementations
@@ -121,6 +130,23 @@ class AIAgent:
             return "\n".join(sorted(os.listdir(full_path)))
         except Exception as e:
             return f"Error listing files: {str(e)}"
+        
+    def list_available_databases(self) -> str:
+        """List only .db files in the working directory."""
+        try:
+            db_files = [
+                f for f in sorted(os.listdir(self.working_dir))
+                if f.lower().endswith(".db")
+            ]
+            if not db_files:
+                return "No .db files found in the working directory."
+            
+            result = f"Found {len(db_files)} database(s) in {self.working_dir}:\n\n"
+            for db in db_files:
+                result += f"• {db}\n"
+            return result.strip()
+        except Exception as e:
+            return f"Error listing databases: {str(e)}"
 
     def suggest_interesting_queries(self, focus: str = "general") -> str:
         try:

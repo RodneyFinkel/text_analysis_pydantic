@@ -43,6 +43,7 @@ task = st.sidebar.selectbox(
         "Extract Key Topics",
         "Intent Classification",
         "Query Database (one-shot)",
+        "Database Explorer",           # ← NEW
         "Conversational AI Agent",
     ]
 )
@@ -67,6 +68,98 @@ elif task == "Intent Classification":
 
 elif task == "Query Database (one-shot)":
     user_input = st.text_area("🧠 Enter natural language question for student_grades.db", height=120)
+    
+# ====================== NEW: DATABASE EXPLORER ======================
+elif task == "Database Explorer":
+    st.subheader("🔍 Database Explorer")
+    st.markdown("Discover, inspect, and query all SQLite databases in the working directory.")
+
+    working_dir_input = st.sidebar.text_input("Working Directory", value=".", key="explorer_wd")
+
+    # Initialize explorer agent
+    if "explorer_agent" not in st.session_state or st.session_state.get("_explorer_dir") != working_dir_input:
+        st.session_state.explorer_agent = get_agent(working_dir_input)
+        st.session_state._explorer_dir = working_dir_input
+
+    agent = st.session_state.explorer_agent
+
+    # Auto-detect databases
+    try:
+        db_files = [f for f in sorted(os.listdir(working_dir_input)) if f.lower().endswith(".db")]
+    except Exception:
+        db_files = []
+
+    if not db_files:
+        st.warning("No `.db` files found in the directory. Run your creation scripts to generate databases.")
+    else:
+        selected_db = st.selectbox("Select Database to Explore", db_files, key="selected_db_explorer")
+
+        st.caption(f"📁 **Currently exploring:** {selected_db}")
+
+        # Quick Action Buttons
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("📋 Quick Schema", type="primary"):
+                with st.spinner("Analyzing database schema..."):
+                    prompt = f"Using the database '{selected_db}', list all tables with their columns and data types."
+                    result = agent.chat(prompt)
+                    if result["type"] == "text":
+                        st.markdown(result["content"])
+                    elif result["type"] == "db_result":
+                        res = result["result"]
+                        if res.error:
+                            st.error(res.error)
+                        else:
+                            if res.sql:
+                                with st.expander("Generated SQL", expanded=True):
+                                    st.code(res.sql, language="sql")
+                            if res.rows:
+                                df = pd.DataFrame(res.rows, columns=res.columns)
+                                st.dataframe(df, use_container_width=True)
+
+        with col2:
+            if st.button("📊 Tables Overview"):
+                with st.spinner("Fetching overview..."):
+                    result = agent.chat(f"Using '{selected_db}', list all tables with row counts if possible.")
+                    if result["type"] == "text":
+                        st.markdown(result["content"])
+
+        with col3:
+            if st.button("🔄 Refresh"):
+                st.rerun()
+
+        st.divider()
+
+        # Natural Language Query
+        st.subheader("💬 Natural Language Query")
+        nl_question = st.text_area(
+            "Ask anything about this database", 
+            height=120,
+            placeholder="Show the top 10 goal scorers this season..."
+        )
+
+        if st.button("🚀 Run Query", type="primary"):
+            if nl_question.strip():
+                with st.spinner(f"Querying {selected_db}..."):
+                    prompt = f"Using the database file '{selected_db}', {nl_question}"
+                    result = agent.chat(prompt)
+
+                    if result["type"] == "text":
+                        st.markdown(result["content"])
+                    elif result["type"] == "db_result":
+                        res = result["result"]
+                        if res.error:
+                            st.error(res.error)
+                        else:
+                            if res.sql:
+                                with st.expander("🔎 Generated SQL", expanded=True):
+                                    st.code(res.sql, language="sql")
+                            if res.rows:
+                                df = pd.DataFrame(res.rows, columns=res.columns)
+                                st.dataframe(df, use_container_width=True)
+                                st.caption(f"✅ {res.row_count} rows returned")
+                            else:
+                                st.info("Query returned no rows.")
 
 elif task == "Conversational AI Agent":
     st.subheader("🛠️ File System + Multi-DB Conversational Agent")
@@ -162,7 +255,7 @@ elif task == "Conversational AI Agent":
 
 # ─── One-shot processing (non-agent modes) ─────────────────────────────────────
 
-if st.button("Run Analysis") and task != "Conversational AI Agent":
+if st.button("Run Analysis") and task not in ["Conversational AI Agent", "Database Explorer"]:
     if not user_input.strip():
         st.error("Please provide input.")
     else:
