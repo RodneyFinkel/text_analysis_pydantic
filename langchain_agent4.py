@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.utilities import SQLDatabase
-from sqlglot import parse_one, exp
+#from sqlglot import parse_one, exp
 
 
 load_dotenv()
