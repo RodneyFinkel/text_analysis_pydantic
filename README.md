@@ -16,7 +16,7 @@ pip install -r requirements.txt
 Launch the Streamlit server to view the app in your browser:
 streamlit run app.py
 
-Alternatively use this link for a live demo: 
+Alternatively use this link for a live demo: http://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app
 
 
 
