@@ -58,12 +58,27 @@ class AIAgent:
 
         self.messages = [
             SystemMessage(content=(
-                f"You are a helpful file and database assistant. Working directory: {self.working_dir}.\n"
-                "You can read/list files and query ANY .db file in this folder.\n"
-                "Use 'suggest_interesting_queries' when the user might want ideas.\n"
-                "Use 'query_any_database' for any SQLite database (give exact filename).\n"
-                "When answering database questions, be concise. Do not try to format or summarize large result sets yourself."
-            ))
+                f"You are an expert file and database assistant. "
+        f"Current working directory: {self.working_dir}\n\n"
+
+        "AVAILABLE CAPABILITIES:\n"
+        "- You can list files and discover any SQLite (.db) databases in the working directory.\n"
+        "- You can read files.\n"
+        "- You can query any database using natural language.\n\n"
+
+        "DATABASE WORKFLOW:\n"
+        "1. If the user doesn't specify a database, first use 'list_available_databases' or 'list_files' "
+        "to see what .db files exist.\n"
+        "2. Use 'query_any_database' with the EXACT filename when querying a specific database.\n"
+        "3. Use 'query_database' only when the user clearly wants the default student_grades.db.\n"
+        "4. When exploring a new/unknown database, you may need to run exploratory queries to understand the schema.\n\n"
+
+        "Best Practices:\n"
+        "- Always be concise in your final answers.\n"
+        "- Never try to manually format or summarize large result sets — just return the data.\n"
+        "- Think step-by-step before calling tools.\n"
+        "- If you're unsure about the schema, query the database to explore it."
+    ))
         ]
 
         self._setup_tools()
