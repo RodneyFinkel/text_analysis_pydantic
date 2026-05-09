@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-st.set_page_config(page_title="Tool Calling Agent", layout="wide")
+st.set_page_config(page_title="Conversational Tool Calling Agent/DB explorer dashboard ", layout="wide")
 
 # ─── Cached instances ──────────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ processor = get_processor()
 
 # ─── UI ────────────────────────────────────────────────────────────────────────
 
-st.markdown("<h1 style='color: #ADD8E6;'>Tool Calling Agent Demo</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: #ADD8E6;'>Conversational Tool Calling Agent/DB explorer dashboard</h1>", unsafe_allow_html=True)
 st.markdown(
     "<span style='color: #ADD8E6;'>Text analysis • Intent classification • Database querying • "
     "**Conversational AI Agent with multi-DB support for natural language processing**</span>",
@@ -71,7 +71,7 @@ elif task == "Query Database (one-shot)":
     
 # ====================== NEW: DATABASE EXPLORER ======================
 elif task == "Database Explorer":
-    st.subheader("🔍 Database Explorer")
+    st.subheader("🔍 Database Explorer Dashboard")
     st.markdown("Discover, inspect, and query all SQLite databases in the working directory.")
 
     working_dir_input = st.sidebar.text_input("Working Directory", value=".", key="explorer_wd")
@@ -162,7 +162,7 @@ elif task == "Database Explorer":
                                 st.info("Query returned no rows.")
 
 elif task == "Conversational AI Agent":
-    st.subheader("🛠️ File System + Multi-DB Conversational Agent")
+    st.subheader("🛠️ File System Explorer + Multi-DB Conversational Agent")
     working_dir_input = st.sidebar.text_input("Working Directory", value=".", help="Folder with your .db files")
 
     # Agent instance

@@ -60,28 +60,59 @@ class AIAgent:
         self._ensure_database()
         self.default_db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
 
+    #     self.messages = [
+    #         SystemMessage(content=(
+    #             f"You are an expert file and database assistant. "
+    #     f"Current working directory: {self.working_dir}\n\n"
+
+    #     "AVAILABLE CAPABILITIES:\n"
+    #     "- You can list files and discover any SQLite (.db) databases in the working directory.\n"
+    #     "- You can read files.\n"
+    #     "- You can query any database using natural language.\n\n"
+
+    #     "DATABASE WORKFLOW:\n"
+    #     "1. If the user doesn't specify a database, first use 'list_available_databases' or 'list_files' "
+    #     "to see what .db files exist.\n"
+    #     "2. Use 'query_any_database' with the EXACT filename when querying a specific database.\n"
+    #     "3. Use 'query_database' only when the user clearly wants the default student_grades.db.\n"
+    #     "4. When exploring a new/unknown database, you may need to run exploratory queries to understand the schema.\n\n"
+
+    #     "Best Practices:\n"
+    #     "- Always be concise in your final answers.\n"
+    #     "- Never try to manually format or summarize large result sets — just return the data.\n"
+    #     "- Think step-by-step before calling tools.\n"
+    #     "- If you're unsure about the schema, query the database to explore it."
+    # ))
+    #     ]
+        
         self.messages = [
             SystemMessage(content=(
-                f"You are an expert file and database assistant. "
+        f"You are an expert file and database assistant. "
         f"Current working directory: {self.working_dir}\n\n"
 
+        "You are a ReAct agent. Think step-by-step before every action.\n\n"
+
+        "REACT REASONING CYCLE:\n"
+        "1. Thought: Understand the user request and plan what to do.\n"
+        "2. Action: Use the right tool(s) if needed.\n"
+        "3. Observation: Analyze the tool results carefully.\n"
+        "4. Reflection: Decide if you need more information or can answer.\n\n"
+
         "AVAILABLE CAPABILITIES:\n"
-        "- You can list files and discover any SQLite (.db) databases in the working directory.\n"
-        "- You can read files.\n"
-        "- You can query any database using natural language.\n\n"
+        "- List files and discover SQLite databases\n"
+        "- Read files\n"
+        "- Query databases using natural language\n\n"
 
         "DATABASE WORKFLOW:\n"
-        "1. If the user doesn't specify a database, first use 'list_available_databases' or 'list_files' "
-        "to see what .db files exist.\n"
-        "2. Use 'query_any_database' with the EXACT filename when querying a specific database.\n"
-        "3. Use 'query_database' only when the user clearly wants the default student_grades.db.\n"
-        "4. When exploring a new/unknown database, you may need to run exploratory queries to understand the schema.\n\n"
+        "1. If no database is specified, first use 'list_available_databases' or 'list_files'.\n"
+        "2. Use 'query_any_database' with the exact filename for any non-default database.\n"
+        "3. Use 'query_database' only for the default student_grades.db.\n\n"
 
-        "Best Practices:\n"
-        "- Always be concise in your final answers.\n"
-        "- Never try to manually format or summarize large result sets — just return the data.\n"
-        "- Think step-by-step before calling tools.\n"
-        "- If you're unsure about the schema, query the database to explore it."
+        "BEST PRACTICES:\n"
+        "- Be concise in your final answers.\n"
+        "- Never guess. Use tools to verify.\n"
+        "- After getting tool results, think about what they mean before replying.\n"
+        "- Do not call tools unnecessarily once you have enough information.\n"
     ))
         ]
 
