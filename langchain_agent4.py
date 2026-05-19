@@ -10,7 +10,9 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.utilities import SQLDatabase
-#from sqlglot import parse_one, exp
+from sqlglot import parse_one, exp
+from sqlglot.errors import ParseError
+from langchain_core.tools import StructuredTool
 
 
 load_dotenv()
@@ -116,8 +118,10 @@ class AIAgent:
     ))
         ]
 
-        self._setup_tools()
-        self.llm_with_tools = self.llm.bind_tools(self.langchain_tools)
+        self._setup_tools2()
+        # Bind the tools
+        #self.llm_with_tools = self.llm.bind_tools(self.langchain_tools)
+        self.llm_with_tools = self.llm.bind_tools(self.tools)
 
     def _ensure_database(self):
         if not os.path.exists(self.db_path):
@@ -131,6 +135,7 @@ class AIAgent:
             conn.commit()
             conn.close()
 
+    # USING raw JSON schemas directly
     def _setup_tools(self):
         self.langchain_tools = [
             {"type": "function", "function": {"name": "read_file",        "description": "Read the contents of a file.",        "parameters": ReadFileSchema.model_json_schema()}},
@@ -144,6 +149,53 @@ class AIAgent:
                               "Use this first when the user asks about available databases or doesn't specify which one.",
                 "parameters": ListAvailableDatabasesSchema.model_json_schema()}},
         ]
+    
+    # USING StructuredTool.from_function for tighter langchain coupling  
+    def _setup_tools2(self):
+        print("NOW USING MODERN TOOL BINDINGS WITH LANGCHAIN!!")
+        """Modern and more reliable tool binding"""
+   
+    
+        self.tools = [
+            StructuredTool.from_function(
+                func=self.read_file,
+                name="read_file",
+                description="Read the contents of a file at the given path.",
+                args_schema=ReadFileSchema,
+            ),
+            StructuredTool.from_function(
+                func=self.list_files,
+                name="list_files",
+                description="List all files and directories in the given path.",
+                args_schema=ListFilesSchema,
+            ),
+            StructuredTool.from_function(
+                func=self.list_available_databases,
+                name="list_available_databases",
+                description="List only the SQLite .db database files in the working directory.",
+                args_schema=ListAvailableDatabasesSchema,
+            ),
+            StructuredTool.from_function(
+                func=self.query_database,
+                name="query_database",
+                description="Query the default student_grades.db database using natural language.",
+                args_schema=QueryDatabaseSchema,
+            ),
+            StructuredTool.from_function(
+                func=self.query_any_database,
+                name="query_any_database",
+                description="Query any .db file in the working directory using its exact filename.",
+                args_schema=QueryAnyDatabaseSchema,
+            ),
+            StructuredTool.from_function(
+                func=self.suggest_interesting_queries,
+                name="suggest_interesting_queries",
+                description="Suggest interesting natural language questions about the database.",
+                args_schema=SuggestQueriesSchema,
+            ),
+        ]
+
+        
 
     # Tool implementations
 
@@ -219,16 +271,33 @@ class AIAgent:
 
             # Clean common markdown fences
             generated_sql = raw_sql.strip()
-            if generated_sql.startswith("```"):
-                generated_sql = generated_sql.split("```")[1]
-                if generated_sql.startswith("sql"):
-                    generated_sql = generated_sql[3:]
-                generated_sql = generated_sql.strip()
-            elif generated_sql.lower().startswith("sql "):
-                generated_sql = generated_sql[4:].strip()
+            
+            # INTERCEPT WITH SQLGLOT GUARDRAI.    -----NEW----
+            validation = SQLGuardrail.validate_and_optimize(generated_sql)
+            
+            if not validation["valid"]:
+                # We return the error *as an observation* to the agent
+                return {
+                    "sql": generated_sql,
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                    "error": f"Guardrail Blocked Execution. Reason: {validation['error']}"
+                }
+                
+            
+            # if generated_sql.startswith("```"):
+            #     generated_sql = generated_sql.split("```")[1]
+            #     if generated_sql.startswith("sql"):
+            #         generated_sql = generated_sql[3:]
+            #     generated_sql = generated_sql.strip()
+            # elif generated_sql.lower().startswith("sql "):
+            #     generated_sql = generated_sql[4:].strip()
                # sql = sql.split("```", 2)[1 if sql.startswith("```sql") else 0].strip()
+               
+            validated_sql = validation["sql"]   
 
-            results = db._execute(generated_sql)  # returns list of dicts
+            results = db._execute(validated_sql)  # returns list of dicts
 
             return {
                 "sql": generated_sql,
@@ -326,6 +395,49 @@ class AIAgent:
 
         # Fallback (should not reach here)
         return {"type": "text", "content": "Finished processing."}
+    
+    
+class SQLGuardrail:
+    FORBIDDEN_NODES = (exp.Drop, exp.Delete, exp.Update, exp.Insert, exp.Alter)
+    
+    @classmethod
+    def validate_and_optimize(cls, sql_str: str) -> dict:
+        """
+        Parses and verifies the AST of a generated SQL string.
+        Returns a dict indicating validity, errors or the sanitized SQL.
+        """
+        try:
+            # Parse into an Abstrat Syntax Tree (AST)
+            ast = parse_one(sql_str, read="sqlite")
+        except ParseError as e:
+            return {"valid": False, "error": f"SQL Syntax Error: {str(e)}"}
+        
+        # Enforce Read_only Boundaries using expression types
+        for forbidden_type in cls.FORBIDDEN_NODES:
+            if list(ast.find_all(forbidden_type)):
+                return {
+                    "valid": False,
+                    "error": f"Security Violation: Mutating operation '{forbidden_type.__name__}' detected."
+                }
+                
+        # Programmatically inject a LIMIT clause if it doesn't exist
+        # We look for a Select expression node in the AST
+        select_node = ast.find(exp.Select)
+        if select_node and not ast.find(exp.Limit):
+            # Mutate the AST to add a Limit node safely
+            ast = ast.limit(100)
+
+        return {
+            "valid": True,
+            "sql": ast.sql(dialect="sqlite")
+        }
+    
+    
+    
+    
+    
+    
+    
 
 
 if __name__ == "__main__":
