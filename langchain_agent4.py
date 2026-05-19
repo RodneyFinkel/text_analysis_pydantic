@@ -13,6 +13,7 @@ from langchain_community.utilities import SQLDatabase
 from sqlglot import parse_one, exp
 from sqlglot.errors import ParseError
 from langchain_core.tools import StructuredTool
+import re
 
 
 load_dotenv()
@@ -47,6 +48,11 @@ class DbQueryResult(BaseModel):
     rows: List[List[Any]]
     row_count: int
     error: Optional[str] = None
+    
+# NEW SCHEMA INTROSPECTION TOOL
+class GetDatabaseSchemaSchema(BaseModel):
+    db_filename: str = Field(description="Exact filename of the .db file in the working directory (e.g., student_grades.db)")
+    
 
 
 class AIAgent:
@@ -115,6 +121,11 @@ class AIAgent:
         "- Never guess. Use tools to verify.\n"
         "- After getting tool results, think about what they mean before replying.\n"
         "- Do not call tools unnecessarily once you have enough information.\n"
+        
+        "DATABASE WORKFLOW & RULES:\n"
+        "1. NEVER explore database tables using raw SQL (e.g., SELECT * FROM sqlite_master).\n"
+        "2. If you need to know which tables exist or what the columns are, you MUST use the 'get_database_schema' tool.\n"
+    
     ))
         ]
 
@@ -193,6 +204,12 @@ class AIAgent:
                 description="Suggest interesting natural language questions about the database.",
                 args_schema=SuggestQueriesSchema,
             ),
+            StructuredTool.from_function(
+                func=self.get_database_schema,
+                name="get_database_schema",
+                description="Retrieve schema information, tables, and column DDL structures for a specific database.",
+                args_schema=GetDatabaseSchemaSchema,
+            )
         ]
 
         
@@ -337,6 +354,21 @@ class AIAgent:
                 "sql": "", "columns": [], "rows": [], "row_count": 0,
                 "error": f"Failed to open database {db_filename}: {str(e)}"
             }
+            
+    def get_database_schema(self, db_filename: str) -> str:
+        """Safely retrieve table schemas (CREATE TABLE statements) for a database file."""
+        full_path = os.path.join(self.working_dir, db_filename)
+        if not os.path.exists(full_path) or not db_filename.lower().endswith(".db"):
+            return f"Error: Database file '{db_filename}' not found or is not a .db file."
+        try:
+            # Initialize the SQLDatabase instance on-the-fly for the requested DB
+            db = SQLDatabase.from_uri(f"sqlite:///{full_path}")
+            schema_info = db.get_table_info()
+            if not schema_info:
+                return f"Database '{db_filename}' is empty or has no tables."
+            return schema_info
+        except Exception as e:
+            return f"Error reading schema metadata for '{db_filename}': {str(e)}"
 
     # Main chat method 
 
@@ -399,6 +431,27 @@ class AIAgent:
     
 class SQLGuardrail:
     FORBIDDEN_NODES = (exp.Drop, exp.Delete, exp.Update, exp.Insert, exp.Alter)
+    
+    @classmethod
+    def _clean_raw_llm_string(cls, sql_str: str) -> str:
+        """Strips markdown code fences, leading 'sql' blocks, and extra whitespace."""
+        cleaned = sql_str.strip()
+        
+        # 1. Strip markdown fences if they exist (e.g., ```sql ... ``` or ``` ... ```)
+        cleaned = re.sub(r"^```(?:sql)?\s*","", cleaned,flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        
+        # 2. Check if the string starts with the literal prefix "sql" and strip it
+        if cleaned.lower().startswith("sql"):
+                cleaned = cleaned[3:].strip()
+        
+        # 3. Detect and strip wrapping double or single quotes around the entire output
+        if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+                cleaned = cleaned[1:-1].strip()
+        
+        return cleaned.strip()
+            
+            
     
     @classmethod
     def validate_and_optimize(cls, sql_str: str) -> dict:
