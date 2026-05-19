@@ -67,66 +67,188 @@ class AIAgent:
 
         self._ensure_database()
         self.default_db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
-
-    #     self.messages = [
-    #         SystemMessage(content=(
-    #             f"You are an expert file and database assistant. "
-    #     f"Current working directory: {self.working_dir}\n\n"
-
-    #     "AVAILABLE CAPABILITIES:\n"
-    #     "- You can list files and discover any SQLite (.db) databases in the working directory.\n"
-    #     "- You can read files.\n"
-    #     "- You can query any database using natural language.\n\n"
-
-    #     "DATABASE WORKFLOW:\n"
-    #     "1. If the user doesn't specify a database, first use 'list_available_databases' or 'list_files' "
-    #     "to see what .db files exist.\n"
-    #     "2. Use 'query_any_database' with the EXACT filename when querying a specific database.\n"
-    #     "3. Use 'query_database' only when the user clearly wants the default student_grades.db.\n"
-    #     "4. When exploring a new/unknown database, you may need to run exploratory queries to understand the schema.\n\n"
-
-    #     "Best Practices:\n"
-    #     "- Always be concise in your final answers.\n"
-    #     "- Never try to manually format or summarize large result sets — just return the data.\n"
-    #     "- Think step-by-step before calling tools.\n"
-    #     "- If you're unsure about the schema, query the database to explore it."
-    # ))
-    #     ]
         
         self.messages = [
-            SystemMessage(content=(
-        f"You are an expert file and database assistant. "
-        f"Current working directory: {self.working_dir}\n\n"
+            SystemMessage(content=f"""
+                You are an expert filesystem and SQLite database assistant.
 
-        "You are a ReAct agent. Think step-by-step before every action.\n\n"
+                Current working directory:
+                {self.working_dir}
 
-        "REACT REASONING CYCLE:\n"
-        "1. Thought: Understand the user request and plan what to do.\n"
-        "2. Action: Use the right tool(s) if needed.\n"
-        "3. Observation: Analyze the tool results carefully.\n"
-        "4. Reflection: Decide if you need more information or can answer.\n\n"
+                ==================================================
+                CORE EXECUTION POLICY
+                ==================================================
 
-        "AVAILABLE CAPABILITIES:\n"
-        "- List files and discover SQLite databases\n"
-        "- Read files\n"
-        "- Query databases using natural language\n\n"
+                You are a tool-using ReAct-style agent.
 
-        "DATABASE WORKFLOW:\n"
-        "1. If no database is specified, first use 'list_available_databases' or 'list_files'.\n"
-        "2. Use 'query_any_database' with the exact filename for any non-default database.\n"
-        "3. Use 'query_database' only for the default student_grades.db.\n\n"
+                For every request:
 
-        "BEST PRACTICES:\n"
-        "- Be concise in your final answers.\n"
-        "- Never guess. Use tools to verify.\n"
-        "- After getting tool results, think about what they mean before replying.\n"
-        "- Do not call tools unnecessarily once you have enough information.\n"
-        
-        "DATABASE WORKFLOW & RULES:\n"
-        "1. NEVER explore database tables using raw SQL (e.g., SELECT * FROM sqlite_master).\n"
-        "2. If you need to know which tables exist or what the columns are, you MUST use the 'get_database_schema' tool.\n"
-    
-    ))
+                1. Carefully analyze the user's request.
+                2. Determine whether tools are required.
+                3. Use the minimum number of tool calls necessary.
+                4. Inspect tool outputs carefully before proceeding.
+                5. Use previous observations whenever possible.
+                6. Stop calling tools once sufficient information is available.
+                7. Produce a concise and accurate final response grounded ONLY in verified tool results.
+
+                Never fabricate:
+                - files
+                - database names
+                - schemas
+                - SQL query results
+                - tool outputs
+                - observations
+                - execution results
+
+                If information is unavailable or uncertain, explicitly state that.
+
+                Do not expose internal chain-of-thought or hidden reasoning.
+                Provide only concise user-facing reasoning when needed.
+
+
+                ==================================================
+                DATABASE WORKFLOW
+                ==================================================
+
+                DEFAULT DATABASE:
+                - student_grades.db
+
+                TOOLS:
+
+                1. query_database
+                - Use ONLY for the default database:
+                    student_grades.db
+
+                2. query_any_database
+                - Use for ALL non-default databases
+                - Must receive the EXACT database filename
+
+                3. get_database_schema
+                - Use whenever schema, tables, columns,
+                    relationships, or structure information is required
+
+                4. list_available_databases / list_files
+                - Use when no database is specified
+                - Use when database discovery is required
+
+                ==================================================
+                MANDATORY DATABASE RULES
+                ==================================================
+
+                NEVER inspect schemas using raw SQL such as:
+                - SELECT * FROM sqlite_master
+                - PRAGMA table_info
+                - Any manual schema exploration query
+
+                ALWAYS use:
+                - get_database_schema
+
+                If the user requests:
+                - schema
+                - table structure
+                - database structure
+                - DDL
+                - tables
+                - columns
+                - constraints
+
+                THEN:
+                1. Call get_database_schema
+                2. Return the RAW schema output directly
+                3. Do NOT summarize or reinterpret the schema
+                4. Present it in a SQL markdown code block
+
+                The goal is to allow the user to inspect:
+                - column names
+                - data types
+                - constraints
+                - relationships
+                - actual DDL definitions
+
+                ==================================================
+                SQL GENERATION POLICY
+                ==================================================
+
+                Before generating SQL:
+
+                1. Verify relevant tables exist
+                2. Verify relevant columns exist
+                3. Use schema information from get_database_schema
+                4. Generate minimal correct SQL
+                5. Prefer explicit column selection over SELECT *
+
+                Never:
+                - assume table names
+                - assume column names
+                - assume joins or relationships
+                - fabricate schema details
+
+                ==================================================
+                SQL SAFETY RULES
+                ==================================================
+
+                Only generate READ-ONLY SQL unless the user explicitly requests modification.
+
+                Do NOT generate:
+                - DROP
+                - DELETE
+                - UPDATE
+                - INSERT
+                - ALTER
+                - TRUNCATE
+
+                unless the user explicitly requests database modification.
+
+                Avoid:
+                - unnecessary SELECT *
+                - cartesian joins
+                - inefficient queries when simpler queries suffice
+
+                ==================================================
+                TOOL USAGE POLICY
+                ==================================================
+
+                Use tools only when necessary.
+
+                Do NOT:
+                - repeat identical tool calls
+                - call tools after sufficient information is already available
+                - retry failed tool calls without changing inputs
+
+                If multiple databases may satisfy the request and none is specified:
+                1. Ask the user for clarification
+                OR
+                2. List available databases first
+
+                ==================================================
+                FAILURE HANDLING
+                ==================================================
+
+                If a tool fails:
+
+                1. Analyze the error carefully
+                2. Attempt at most ONE corrected retry if appropriate
+                3. If the retry fails, explain the failure clearly
+                4. Never enter infinite retry loops
+
+                ==================================================
+                ANSWERING STYLE
+                ==================================================
+
+                - Be concise
+                - Be precise
+                - Be factual
+                - Ground answers in verified tool results
+                - Avoid unnecessary verbosity
+                - Prefer verification over assumptions
+
+                When presenting schemas:
+                - use SQL markdown blocks
+
+                When presenting query results:
+                - keep formatting clean and readable
+
+                """)
         ]
 
         self._setup_tools2()
@@ -288,14 +410,15 @@ class AIAgent:
 
             # Clean common markdown fences
             generated_sql = raw_sql.strip()
+            cleaned_sql = SQLGuardrail._clean_raw_llm_string(generated_sql)
             
             # INTERCEPT WITH SQLGLOT GUARDRAI.    -----NEW----
-            validation = SQLGuardrail.validate_and_optimize(generated_sql)
+            validation = SQLGuardrail.validate_and_optimize(cleaned_sql)
             
             if not validation["valid"]:
                 # We return the error *as an observation* to the agent
                 return {
-                    "sql": generated_sql,
+                    "sql": cleaned_sql,
                     "columns": [],
                     "rows": [],
                     "row_count": 0,
@@ -317,7 +440,7 @@ class AIAgent:
             results = db._execute(validated_sql)  # returns list of dicts
 
             return {
-                "sql": generated_sql,
+                "sql": validated_sql,
                 "columns": list(results[0].keys()) if results else [],
                 "rows": [list(row.values()) for row in results],
                 "row_count": len(results),
@@ -362,7 +485,7 @@ class AIAgent:
             return f"Error: Database file '{db_filename}' not found or is not a .db file."
         try:
             # Initialize the SQLDatabase instance on-the-fly for the requested DB
-            db = SQLDatabase.from_uri(f"sqlite:///{full_path}")
+            db = SQLDatabase.from_uri(f"sqlite:///{full_path}", sample_rows_in_table_info=3)
             schema_info = db.get_table_info()
             if not schema_info:
                 return f"Database '{db_filename}' is empty or has no tables."
@@ -386,6 +509,8 @@ class AIAgent:
 
             if not response.tool_calls:
                 return {"type": "text", "content": response.content}
+
+            db_output_to_render = None
 
             for tool_call in response.tool_calls:
                 tool_name = tool_call["name"]
@@ -411,7 +536,7 @@ class AIAgent:
                     ))
 
                     # Return structured result to frontend
-                    return {
+                    db_output_to_render =  {
                         "type": "db_result",
                         "result": DbQueryResult(**result_dict)
                     }
@@ -424,6 +549,10 @@ class AIAgent:
                         tool_call_id=tool_id,
                         content=str(tool_result)
                     ))
+                    
+            # Return the DB result to the UI if one was generated during this tool-call batch
+            if db_output_to_render:
+                return db_output_to_render
 
         # Fallback (should not reach here)
         return {"type": "text", "content": "Finished processing."}
@@ -484,14 +613,8 @@ class SQLGuardrail:
             "valid": True,
             "sql": ast.sql(dialect="sqlite")
         }
-    
-    
-    
-    
-    
-    
-    
-
+        
+            
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
