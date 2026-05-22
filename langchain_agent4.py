@@ -1,12 +1,12 @@
 import os
 import sqlite3
 import argparse
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AIMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage, AIMessage, BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.utilities import SQLDatabase
@@ -75,7 +75,7 @@ class AIAgent:
         self.default_db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
         
         system_instruction = load_prompt("db_agent")
-        self.messages = [
+        self.system_prompt = [
             SystemMessage(content=system_instruction)
         ]
 
@@ -344,13 +344,22 @@ class AIAgent:
             return f"Error reading schema metadata for '{db_filename}': {str(e)}"
 
     # Main chat method React loop
-    def chat(self, user_input: str) -> Dict[str, Any]:
+    def chat(self, user_input: Union[str, List[BaseMessage]]) -> Dict[str, Any]:
         """
         Returns either:
           - {"type": "text", "content": str}          → normal text answer
           - {"type": "db_result", "result": DbQueryResult}  → database query result to be rendered as table
         """
-        self.messages.append(HumanMessage(content=user_input))
+        
+        self.messages = self.system_prompt.copy()
+        
+        if isinstance(user_input, str):
+            # Terminal/Standalone mode
+            self.messages.append(HumanMessage(content=user_input))
+        else:
+            # LangGraph mode: Extend with the distilled conversational history
+            self.messages.extend(user_input)
+        # self.messages.append(HumanMessage(content=user_input))
 
         while True:
             response: AIMessage = self.llm_with_tools.invoke(self.messages)
@@ -437,9 +446,7 @@ class SQLGuardrail:
         if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
                 cleaned = cleaned[1:-1].strip()
         
-        return cleaned.strip()
-            
-            
+        return cleaned.strip()         
     
     @classmethod
     def validate_and_optimize(cls, sql_str: str) -> dict:

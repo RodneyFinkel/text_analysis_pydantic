@@ -23,11 +23,8 @@ def agent_node(state: AgentState) -> AgentState:
     """Main LangGraph node wrapping the original ReAct agent"""
     agent = get_agent(state["working_dir"])
     
-    last_message = state["messages"][-1]
-    user_input = last_message.content if hasattr(last_message, 'content') else str(last_message)
-    
     # Call original ReAct agent
-    result = agent.chat(user_input)
+    result = agent.chat(state["messages"])
     
     updates = {"messages": [], "db_results": []}
     
