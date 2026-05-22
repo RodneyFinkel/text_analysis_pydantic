@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-st.set_page_config(page_title="Conversational Tool Calling Agent/DB explorer dashboard ", layout="wide")
+st.set_page_config(page_title="ReAct Agent/DB explorer/SQL dashboard", layout="wide")
 
 # ─── Cached instances ──────────────────────────────────────────────────────────
 
@@ -28,9 +28,9 @@ processor = get_processor()
 
 # ─── UI ────────────────────────────────────────────────────────────────────────
 
-st.markdown("<h1 style='color: #ADD8E6;'>Conversational Tool Calling Agent/DB explorer dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: #ADD8E6;'>ReAct Agent/DB explorer/SQL dashboard</h1>", unsafe_allow_html=True)
 st.markdown(
-    "<span style='color: #ADD8E6;'>Text analysis • Intent classification • Database querying • "
+    "<span style='color: #ADD8E6;'>FileSystem search-engine • DB Schema introspection • SQL natural language querying • "
     "**Conversational AI Agent with multi-DB support for natural language processing**</span>",
     unsafe_allow_html=True
 )
@@ -161,6 +161,8 @@ elif task == "Database Explorer":
                             else:
                                 st.info("Query returned no rows.")
 
+
+# ====================== FileSysem and SQL Agent ======================
 elif task == "Conversational AI Agent":
     st.subheader("🛠️ File System Explorer + Multi-DB Conversational Agent")
     working_dir_input = st.sidebar.text_input("Working Directory", value=".", help="Folder with your .db files")

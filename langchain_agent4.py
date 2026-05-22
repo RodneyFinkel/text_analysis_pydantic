@@ -14,6 +14,11 @@ from sqlglot import parse_one, exp
 from sqlglot.errors import ParseError
 from langchain_core.tools import StructuredTool
 import re
+from utils.prompt_loader import load_prompt
+import pandas as pd
+import uuid
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 
 load_dotenv()
@@ -24,13 +29,13 @@ class ReadFileSchema(BaseModel):
     path: str = Field(description="The path to the file to read.")
 
 class ListFilesSchema(BaseModel):
-    path: str = Field(default=".", description="The directory path to list.")
+    path: str = Field(description="The directory path to list. Use '.' for the current working directory.")
 
 class QueryDatabaseSchema(BaseModel):
     question: str = Field(description="A natural language question about the student database.")
 
 class SuggestQueriesSchema(BaseModel):
-    focus: str = Field(default="general", description="Optional focus: general, performance, trends, students, departments")
+    focus: str = Field(description="Optional focus: general, performance, trends")
 
 class QueryAnyDatabaseSchema(BaseModel):
     db_filename: str = Field(description="Exact filename of the .db file in the working directory (e.g. student_grades.db)")
@@ -47,6 +52,7 @@ class DbQueryResult(BaseModel):
     columns: List[str]
     rows: List[List[Any]]
     row_count: int
+    file_path: Optional[str] = None
     error: Optional[str] = None
     
 # NEW SCHEMA INTROSPECTION TOOL
@@ -68,187 +74,9 @@ class AIAgent:
         self._ensure_database()
         self.default_db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
         
+        system_instruction = load_prompt("db_agent")
         self.messages = [
-            SystemMessage(content=f"""
-                You are an expert filesystem and SQLite database assistant.
-
-                Current working directory:
-                {self.working_dir}
-
-                ==================================================
-                CORE EXECUTION POLICY
-                ==================================================
-
-                You are a tool-using ReAct-style agent.
-
-                For every request:
-
-                1. Carefully analyze the user's request.
-                2. Determine whether tools are required.
-                3. Use the minimum number of tool calls necessary.
-                4. Inspect tool outputs carefully before proceeding.
-                5. Use previous observations whenever possible.
-                6. Stop calling tools once sufficient information is available.
-                7. Produce a concise and accurate final response grounded ONLY in verified tool results.
-
-                Never fabricate:
-                - files
-                - database names
-                - schemas
-                - SQL query results
-                - tool outputs
-                - observations
-                - execution results
-
-                If information is unavailable or uncertain, explicitly state that.
-
-                Do not expose internal chain-of-thought or hidden reasoning.
-                Provide only concise user-facing reasoning when needed.
-
-
-                ==================================================
-                DATABASE WORKFLOW
-                ==================================================
-
-                DEFAULT DATABASE:
-                - student_grades.db
-
-                TOOLS:
-
-                1. query_database
-                - Use ONLY for the default database:
-                    student_grades.db
-
-                2. query_any_database
-                - Use for ALL non-default databases
-                - Must receive the EXACT database filename
-
-                3. get_database_schema
-                - Use whenever schema, tables, columns,
-                    relationships, or structure information is required
-
-                4. list_available_databases / list_files
-                - Use when no database is specified
-                - Use when database discovery is required
-
-                ==================================================
-                MANDATORY DATABASE RULES
-                ==================================================
-
-                NEVER inspect schemas using raw SQL such as:
-                - SELECT * FROM sqlite_master
-                - PRAGMA table_info
-                - Any manual schema exploration query
-
-                ALWAYS use:
-                - get_database_schema
-
-                If the user requests:
-                - schema
-                - table structure
-                - database structure
-                - DDL
-                - tables
-                - columns
-                - constraints
-
-                THEN:
-                1. Call get_database_schema
-                2. Return the RAW schema output directly
-                3. Do NOT summarize or reinterpret the schema
-                4. Present it in a SQL markdown code block
-
-                The goal is to allow the user to inspect:
-                - column names
-                - data types
-                - constraints
-                - relationships
-                - actual DDL definitions
-
-                ==================================================
-                SQL GENERATION POLICY
-                ==================================================
-
-                Before generating SQL:
-
-                1. Verify relevant tables exist
-                2. Verify relevant columns exist
-                3. Use schema information from get_database_schema
-                4. Generate minimal correct SQL
-                5. Prefer explicit column selection over SELECT *
-
-                Never:
-                - assume table names
-                - assume column names
-                - assume joins or relationships
-                - fabricate schema details
-
-                ==================================================
-                SQL SAFETY RULES
-                ==================================================
-
-                Only generate READ-ONLY SQL unless the user explicitly requests modification.
-
-                Do NOT generate:
-                - DROP
-                - DELETE
-                - UPDATE
-                - INSERT
-                - ALTER
-                - TRUNCATE
-
-                unless the user explicitly requests database modification.
-
-                Avoid:
-                - unnecessary SELECT *
-                - cartesian joins
-                - inefficient queries when simpler queries suffice
-
-                ==================================================
-                TOOL USAGE POLICY
-                ==================================================
-
-                Use tools only when necessary.
-
-                Do NOT:
-                - repeat identical tool calls
-                - call tools after sufficient information is already available
-                - retry failed tool calls without changing inputs
-
-                If multiple databases may satisfy the request and none is specified:
-                1. Ask the user for clarification
-                OR
-                2. List available databases first
-
-                ==================================================
-                FAILURE HANDLING
-                ==================================================
-
-                If a tool fails:
-
-                1. Analyze the error carefully
-                2. Attempt at most ONE corrected retry if appropriate
-                3. If the retry fails, explain the failure clearly
-                4. Never enter infinite retry loops
-
-                ==================================================
-                ANSWERING STYLE
-                ==================================================
-
-                - Be concise
-                - Be precise
-                - Be factual
-                - Ground answers in verified tool results
-                - Avoid unnecessary verbosity
-                - Prefer verification over assumptions
-
-                When presenting schemas:
-                - use SQL markdown blocks
-
-                When presenting query results:
-                - keep formatting clean and readable
-
-                """)
+            SystemMessage(content=system_instruction)
         ]
 
         self._setup_tools2()
@@ -288,7 +116,6 @@ class AIAgent:
         print("NOW USING MODERN TOOL BINDINGS WITH LANGCHAIN!!")
         """Modern and more reliable tool binding"""
    
-    
         self.tools = [
             StructuredTool.from_function(
                 func=self.read_file,
@@ -412,7 +239,7 @@ class AIAgent:
             generated_sql = raw_sql.strip()
             cleaned_sql = SQLGuardrail._clean_raw_llm_string(generated_sql)
             
-            # INTERCEPT WITH SQLGLOT GUARDRAI.    -----NEW----
+            # INTERCEPT WITH SQLGLOT GUARDRAIL   -----NEW----
             validation = SQLGuardrail.validate_and_optimize(cleaned_sql)
             
             if not validation["valid"]:
@@ -438,12 +265,33 @@ class AIAgent:
             validated_sql = validation["sql"]   
 
             results = db._execute(validated_sql)  # returns list of dicts
+            
+            if not results:
+                 return {
+                    "sql": validated_sql,
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                    "file_path": None,
+                    "error": None
+                }
+            
+            full_rows = [list(row.values()) for row in results]
+            # Slice results for Streamlit UI and LangGraoh Pydantic Object AgentState
+            display_rows = full_rows[:50]  # Slice to max 50 rows for Streamlit/UI
+            
+            # Save FULL dataset to Parquet using pure PyArrow
+            file_name = f"query_{uuid.uuid4().hex[:8]}.parquet"
+            file_path = os.path.join(self.working_dir, file_name)
+            table = pa.Table.from_pylist(results)
+            pq.write_table(table, file_path)
 
             return {
                 "sql": validated_sql,
                 "columns": list(results[0].keys()) if results else [],
-                "rows": [list(row.values()) for row in results],
+                "rows": display_rows,
                 "row_count": len(results),
+                "file_path": file_path,
                 "error": None
             }
 
@@ -453,6 +301,7 @@ class AIAgent:
                 "columns": [],
                 "rows": [],
                 "row_count": 0,
+                "file_path": None,
                 "error": str(e)
             }
 
@@ -477,7 +326,8 @@ class AIAgent:
                 "sql": "", "columns": [], "rows": [], "row_count": 0,
                 "error": f"Failed to open database {db_filename}: {str(e)}"
             }
-            
+    
+    # NEW        
     def get_database_schema(self, db_filename: str) -> str:
         """Safely retrieve table schemas (CREATE TABLE statements) for a database file."""
         full_path = os.path.join(self.working_dir, db_filename)
@@ -493,8 +343,7 @@ class AIAgent:
         except Exception as e:
             return f"Error reading schema metadata for '{db_filename}': {str(e)}"
 
-    # Main chat method 
-
+    # Main chat method React loop
     def chat(self, user_input: str) -> Dict[str, Any]:
         """
         Returns either:
@@ -524,21 +373,30 @@ class AIAgent:
                     else:
                         result_dict = self.query_any_database(**args)
 
+                    if not result_dict["error"]:
+                        sample_rows = result_dict["rows"][:10]
                     # Do **NOT** put the full result back into messages
                     # Only put a short note so the LLM knows something happened
-                    short_note = f"Query executed. {result_dict['row_count']} row(s) returned."
-                    if result_dict["error"]:
-                        short_note += f" Error: {result_dict['error']}"
+                        short_note = (
+                            f"Query executed successfully.\n"
+                            f"Total Rows: {result_dict['row_count']}\n"
+                            f"Full data saved to: {result_dict['file_path']}\n"
+                            f"Context Sample (First 10 rows):\n"
+                            f"Columns: {result_dict['columns']}\n"
+                            f"Data: {sample_rows}"
+                        )
+                    else:
+                        short_note = f"Query failed. Error: {result_dict['error']}"
 
                     self.messages.append(ToolMessage(
                         tool_call_id=tool_id,
                         content=short_note
                     ))
 
-                    # Return structured result to frontend
+                    # Return structured result to frontend. DB results have been truncated to 50 in _execute_db_query
                     db_output_to_render =  {
                         "type": "db_result",
-                        "result": DbQueryResult(**result_dict)
+                        "result": DbQueryResult(**result_dict) 
                     }
 
                 else:
@@ -557,7 +415,8 @@ class AIAgent:
         # Fallback (should not reach here)
         return {"type": "text", "content": "Finished processing."}
     
-    
+# Static Utility Class (holds no state of its own)  
+# @classmethod -> no need for guard = SQLGuardrail() instead use SQLGuardrail.validate_query(...)
 class SQLGuardrail:
     FORBIDDEN_NODES = (exp.Drop, exp.Delete, exp.Update, exp.Insert, exp.Alter)
     
@@ -605,9 +464,10 @@ class SQLGuardrail:
         # Programmatically inject a LIMIT clause if it doesn't exist
         # We look for a Select expression node in the AST
         select_node = ast.find(exp.Select)
-        if select_node and not ast.find(exp.Limit):
+        
+        # if select_node and not ast.find(exp.Limit):
             # Mutate the AST to add a Limit node safely
-            ast = ast.limit(100)
+            # ast = ast.limit(100)  Removed for real db results
 
         return {
             "valid": True,
