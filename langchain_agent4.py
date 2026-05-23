@@ -83,6 +83,7 @@ class AIAgent:
         # Bind the tools
         #self.llm_with_tools = self.llm.bind_tools(self.langchain_tools)
         self.llm_with_tools = self.llm.bind_tools(self.tools)
+        print("Tool bindings done...ReAct agent 4 initialized")
 
     def _ensure_database(self):
         if not os.path.exists(self.db_path):
@@ -283,6 +284,7 @@ class AIAgent:
             # Save FULL dataset to Parquet using pure PyArrow
             file_name = f"query_{uuid.uuid4().hex[:8]}.parquet"
             file_path = os.path.join(self.working_dir, file_name)
+            print(f"Saving Db query to parquet file:{file_path}")
             table = pa.Table.from_pylist(results)
             pq.write_table(table, file_path)
 

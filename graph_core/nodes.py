@@ -21,6 +21,7 @@ def get_agent(working_dir: str = "."):
 # DB and FILESYSTEM WORKER NODE
 def agent_node(state: AgentState) -> AgentState:
     """Main LangGraph node wrapping the original ReAct agent"""
+    print("Initializing ReAct Agent")
     agent = get_agent(state["working_dir"])
     
     # Call original ReAct agent
@@ -75,6 +76,7 @@ class Route(BaseModel):
     next_node: str = Field(description="The next agent to route to: 'db_agent', 'writer_agent', 'researcher_agent', or 'FINISH'.")
     
 def supervisor_node(state: AgentState) -> AgentState:
+    print("Supervisor Node activated")
     llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0)
     structured_llm = llm.with_structured_output(Route)
     
@@ -86,6 +88,7 @@ def supervisor_node(state: AgentState) -> AgentState:
     ])
     chain = prompt | structured_llm
     result = chain.invoke({"messages": state["messages"]})
+    print(f"Supervisor decision: {result}")
     return {"next_node": result.next_node}
 
 # WRITER NODE
