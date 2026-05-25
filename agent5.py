@@ -153,7 +153,7 @@ class ShortResearchAgent():
         # 3. Embed (Turn text into numbers)
         texts = [d["passage"] for d in docs]
         emb_txts = self.embedder.encode(texts, convert_to_numpy=True, show_progress_bar=True)
-        q_emb = self.embedder.encode(query, convert_to_numpy=True)
+        q_emb = self.embedder.encode(query, convert_to_numpy=True, show_progress_bar=True)
         
         # 4. Rank (Find similarity) USE CUSTOM COSINE FUNCTION OR SKLEARN
         # CUSTOM FUNCTION
