@@ -68,7 +68,7 @@ def fetch_text(url, timeout=TIMEOUT):
             return ""
         
         ct = r.headers.get("content-type", "").lower()
-        if not any(x in ct for x in ["html", "text"]):
+        if not any(x in ct for x in ["html", "text"]): # using only  html is to restricitive
         # if "html" not in ct: # skip non-html content
             print("  → Non-HTML content skipped")
             return ""
