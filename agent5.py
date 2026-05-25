@@ -13,7 +13,7 @@ PASSAGES_PER_PAGE = 4     # How many passages to pull from each URL
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2" # Fast, high-quality model
 TOP_PASSAGES = 5          # How many relevant passages to use for the summary
 SUMMARY_SENTENCES = 3     # How many sentences in the final summary
-TIMEOUT = 8               # How long to wait for a webpage to load
+TIMEOUT = 16              # How long to wait for a webpage to load
 
 # Search anf fetch webpages
 
@@ -47,12 +47,30 @@ def search_web(query,  max_results = SEARCH_RESULTS):
 # Fetch and clean the page with. requests and BeautifulSoup
 def fetch_text(url, timeout=TIMEOUT):
     """Fetch and clean text content from a URL."""
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+    
+    print(f"Fetching: {url}")
+    
     try:
-        r = requests.get(url, timeout=TIMEOUT)
+        r = requests.get(url, timeout=TIMEOUT, headers=headers, allow_redirects=True)
+        print(f"  → Status: {r.status_code} | Content-Type: {r.headers.get('content-type', 'N/A')}")
         if r.status_code != 200:
+            print(f"  → Failed with status {r.status_code}")
             return ""
-        ct = r.headers.get("content_type", "")
-        if "html" not in ct.lower(): # skip non-html content
+        
+        ct = r.headers.get("content-type", "").lower()
+        if not any(x in ct for x in ["html", "text"]):
+        # if "html" not in ct: # skip non-html content
+            print("  → Non-HTML content skipped")
             return ""
         
         soup = BeautifulSoup(r.text, "html.parser")
@@ -67,8 +85,10 @@ def fetch_text(url, timeout=TIMEOUT):
         
         if text.strip():
             # Clean up whitespace
-            return re.sub(r"\s+", " ", text).strip()
-            
+            cleaned = re.sub(r"\s+", " ", text).strip()
+            print(f"  → Success: {len(cleaned)} characters extracted")
+            return cleaned
+        
         # --- Fallback logic if <p> tags fail ---
         meta = soup.find("meta", attrs={"name": "description"}) or soup.find("meta", attrs={"property": "og:description"})
         if meta and meta.get("content"):
@@ -76,8 +96,9 @@ def fetch_text(url, timeout=TIMEOUT):
         if soup.title and soup.title.string:
             return soup.title.string.strip()
             
-    except Exception:
-        return "" # Fail silently
+    except Exception as e:
+        print(f"  → Error fetching {url}: {type(e).__name__}: {e}")
+    print("  → No usable text found")
     return ""
         
         
@@ -127,11 +148,11 @@ class ShortResearchAgent():
                 
         if not docs:
             print("No documents fetched.")
-            return {"query": query, "passages": [], "summary": ""}
+            return {"query": query, "passages": [], "summary": "No documents could be fetched from the web."}
         
         # 3. Embed (Turn text into numbers)
         texts = [d["passage"] for d in docs]
-        emb_txts = self.embedder.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+        emb_txts = self.embedder.encode(texts, convert_to_numpy=True, show_progress_bar=True)
         q_emb = self.embedder.encode(query, convert_to_numpy=True)
         
         # 4. Rank (Find similarity) USE CUSTOM COSINE FUNCTION OR SKLEARN
@@ -162,7 +183,7 @@ class ShortResearchAgent():
             summary = "No summary could be generated"
         else:
             sent_texts = [s["sent"]for s in sentences]
-            sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=False)
+            sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
             sent_sims = [cosine_sklearn(e, q_emb) for e in sent_embs]
             
             top_sent_idx = np.argsort(sent_sims)[::-1][:SUMMARY_SENTENCES]
