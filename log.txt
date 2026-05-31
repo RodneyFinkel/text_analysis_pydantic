@@ -1,0 +1,388 @@
+2026-05-27 22:22:56.497 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "how many companies are there in stocks.db"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 22:22:56.498 Beginning script thread
+2026-05-27 22:22:56.498 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "how many companies are there in stocks.db"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 22:22:56.519 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 22:22:56.519 Sessions still active: dict_keys([])
+2026-05-27 22:22:56.519 Files: 0; Sessions with files: 0
+2026-05-27 22:22:56.530 Cache key: d41d8cd98f00b204e9800998ecf8427e
+Saving Db query to parquet file:/Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_ce322ae1.parquet
+2026-05-27 22:22:57.372 Removing orphaned files...
+2026-05-27 22:22:57.531 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_ce322ae1.parquet.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:22:57.533 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:22:57.534 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_ce322ae1.parquet.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:23:18.266 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "what companies are in stocks.db"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 22:23:18.267 Beginning script thread
+2026-05-27 22:23:18.267 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "what companies are in stocks.db"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 22:23:18.267 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 22:23:18.267 Sessions still active: dict_keys([])
+2026-05-27 22:23:18.268 Files: 0; Sessions with files: 0
+2026-05-27 22:23:18.274 Cache key: d41d8cd98f00b204e9800998ecf8427e
+Saving Db query to parquet file:/Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_15c7888e.parquet
+2026-05-27 22:23:20.438 Removing orphaned files...
+2026-05-27 22:23:20.587 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_15c7888e.parquet.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:23:20.589 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:23:20.589 Ignoring changed path /Users/rodneyfinkel/Documents/Github/text_analysis_bot/query_15c7888e.parquet.
+Watched_paths: {'/Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py': WatchedPath(md5='e1a2eb952b4c4c16eaaeeb5596af341b', modification_time=1779398834.0014367, on_changed=<blinker.base.Signal object at 0x10c95dcd0>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/processor.py': WatchedPath(md5='835bcc5b4837b0f8a231e4d76ef4b9f5', modification_time=1772886722.9882226, on_changed=<blinker.base.Signal object at 0x138731040>), '/Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py': WatchedPath(md5='6b38cca390fb8672a708ecc42c42e541', modification_time=1779907545.0961437, on_changed=<blinker.base.Signal object at 0x13865b0e0>)}
+2026-05-27 22:24:01.422 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "how many students are there in student_grades.db"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 22:24:01.423 Beginning script thread
+2026-05-27 22:24:01.423 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "how many students are there in student_grades.db"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 22:24:01.423 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 22:24:01.423 Sessions still active: dict_keys([])
+2026-05-27 22:24:01.423 Files: 0; Sessions with files: 0
+2026-05-27 22:24:01.429 Cache key: d41d8cd98f00b204e9800998ecf8427e
+────────────────────────── Traceback (most recent call last) ───────────────────────────
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/streamlit/runtime/scriptrunner/exec_code.py:128 in exec_func_with_error_handling  
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/streamlit/runtime/scriptrunner/script_runner.py:669 in code_to_exec               
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/streamlit_app4.py:219 in       
+  <module>                                                                              
+                                                                                        
+    216 │   │                                                                           
+    217 │   │   with st.chat_message("assistant"):                                      
+    218 │   │   │   with st.spinner("Agent thinking..."):                               
+  ❱ 219 │   │   │   │   result = st.session_state.agent.chat(prompt)                    
+    220 │   │   │   │                                                                   
+    221 │   │   │   │   if result["type"] == "text":                                    
+    222 │   │   │   │   │   st.markdown(result["content"])                              
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/langchain_agent4.py:367 in     
+  chat                                                                                  
+                                                                                        
+    364 │   │   # self.messages.append(HumanMessage(content=user_input))                
+    365 │   │                                                                           
+    366 │   │   while True:                                                             
+  ❱ 367 │   │   │   response: AIMessage = self.llm_with_tools.invoke(self.messages)     
+    368 │   │   │   self.messages.append(response)                                      
+    369 │   │   │                                                                       
+    370 │   │   │   if not response.tool_calls:                                         
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_core/runnables/base.py:5695 in invoke                                   
+                                                                                        
+    5692 │   │   config: RunnableConfig | None = None,                                  
+    5693 │   │   **kwargs: Any | None,                                                  
+    5694 │   ) -> Output:                                                               
+  ❱ 5695 │   │   return self.bound.invoke(                                              
+    5696 │   │   │   input,                                                             
+    5697 │   │   │   self._merge_configs(config),                                       
+    5698 │   │   │   **{**self.kwargs, **kwargs},                                       
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_core/language_models/chat_models.py:454 in invoke                       
+                                                                                        
+     451 │   │   │   "AIMessage",                                                       
+     452 │   │   │   cast(                                                              
+     453 │   │   │   │   "ChatGeneration",                                              
+  ❱  454 │   │   │   │   self.generate_prompt(                                          
+     455 │   │   │   │   │   [self._convert_input(input)],                              
+     456 │   │   │   │   │   stop=stop,                                                 
+     457 │   │   │   │   │   callbacks=config.get("callbacks"),                         
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_core/language_models/chat_models.py:1201 in generate_prompt             
+                                                                                        
+    1198 │   │   **kwargs: Any,                                                         
+    1199 │   ) -> LLMResult:                                                            
+    1200 │   │   prompt_messages = [p.to_messages() for p in prompts]                   
+  ❱ 1201 │   │   return self.generate(prompt_messages, stop=stop, callbacks=callbacks,  
+    1202 │                                                                              
+    1203 │   @override                                                                  
+    1204 │   async def agenerate_prompt(                                                
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_core/language_models/chat_models.py:1010 in generate                    
+                                                                                        
+    1007 │   │   for i, m in enumerate(input_messages):                                 
+    1008 │   │   │   try:                                                               
+    1009 │   │   │   │   results.append(                                                
+  ❱ 1010 │   │   │   │   │   self._generate_with_cache(                                 
+    1011 │   │   │   │   │   │   m,                                                     
+    1012 │   │   │   │   │   │   stop=stop,                                             
+    1013 │   │   │   │   │   │   run_manager=run_managers[i] if run_managers else None  
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_core/language_models/chat_models.py:1313 in _generate_with_cache        
+                                                                                        
+    1310 │   │   │   │   chunks.append(chunk)                                           
+    1311 │   │   │   result = generate_from_stream(iter(chunks))                        
+    1312 │   │   elif inspect.signature(self._generate).parameters.get("run_manager"):  
+  ❱ 1313 │   │   │   result = self._generate(                                           
+    1314 │   │   │   │   messages, stop=stop, run_manager=run_manager, **kwargs         
+    1315 │   │   │   )                                                                  
+    1316 │   │   else:                                                                  
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/langchain_groq/chat_models.py:621 in _generate                                    
+                                                                                        
+     618 │   │   │   **params,                                                          
+     619 │   │   │   **kwargs,                                                          
+     620 │   │   }                                                                      
+  ❱  621 │   │   response = self.client.create(messages=message_dicts, **params)        
+     622 │   │   return self._create_chat_result(response, params)                      
+     623 │                                                                              
+     624 │   async def _agenerate(                                                      
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/groq/resources/chat/completions.py:461 in create                                  
+                                                                                        
+     458 │   │                                                                          
+     459 │   │     timeout: Override the client-level default timeout for this request  
+     460 │   │   """                                                                    
+  ❱  461 │   │   return self._post(                                                     
+     462 │   │   │   "/openai/v1/chat/completions",                                     
+     463 │   │   │   body=maybe_transform(                                              
+     464 │   │   │   │   {                                                              
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/groq/_base_client.py:1242 in post                                                 
+                                                                                        
+    1239 │   │   opts = FinalRequestOptions.construct(                                  
+    1240 │   │   │   method="post", url=path, json_data=body, files=to_httpx_files(fil  
+    1241 │   │   )                                                                      
+  ❱ 1242 │   │   return cast(ResponseT, self.request(cast_to, opts, stream=stream, str  
+    1243 │                                                                              
+    1244 │   def patch(                                                                 
+    1245 │   │   self,                                                                  
+                                                                                        
+  /Users/rodneyfinkel/Documents/Github/text_analysis_bot/env/lib/python3.12/site-packa  
+  ges/groq/_base_client.py:1044 in request                                              
+                                                                                        
+    1041 │   │   │   │   │   err.response.read()                                        
+    1042 │   │   │   │                                                                  
+    1043 │   │   │   │   log.debug("Re-raising status error")                           
+  ❱ 1044 │   │   │   │   raise self._make_status_error_from_response(err.response) fro  
+    1045 │   │   │                                                                      
+    1046 │   │   │   break                                                              
+    1047                                                                                
+────────────────────────────────────────────────────────────────────────────────────────
+BadRequestError: Error code: 400 - {'error': {'message': "Failed to call a function. 
+Please adjust your prompt. See 'failed_generation' for more details.", 'type': 
+'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': 
+'<function=query_database{"question": "How many students are there in the 
+database?"}</function>'}}
+2026-05-27 22:24:02.895 Removing orphaned files...
+2026-05-27 22:24:24.564 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "what databases do you have available"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 22:24:24.564 Beginning script thread
+2026-05-27 22:24:24.564 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "what databases do you have available"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 22:24:24.564 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 22:24:24.565 Sessions still active: dict_keys([])
+2026-05-27 22:24:24.565 Files: 0; Sessions with files: 0
+2026-05-27 22:24:24.571 Cache key: d41d8cd98f00b204e9800998ecf8427e
+2026-05-27 22:24:26.790 Removing orphaned files...
+

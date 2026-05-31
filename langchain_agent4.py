@@ -26,7 +26,7 @@ load_dotenv()
 # Tool Input Schemas
 
 class ReadFileSchema(BaseModel):
-    path: str = Field(description="The path to the file to read.")
+    file_path: str = Field(description="The path to the file to read.")
 
 class ListFilesSchema(BaseModel):
     path: str = Field(description="The directory path to list. Use '.' for the current working directory.")
@@ -46,7 +46,6 @@ class ListAvailableDatabasesSchema(BaseModel):
     pass
 
 # Structured DB Result Format 
-
 class DbQueryResult(BaseModel):
     sql: str
     columns: List[str]
@@ -166,8 +165,8 @@ class AIAgent:
 
     # Tool implementations
 
-    def read_file(self, path: str) -> str:
-        full_path = os.path.join(self.working_dir, path)
+    def read_file(self, file_path: str) -> str:
+        full_path = os.path.join(self.working_dir, file_path)
         try:
             with open(full_path, "r", encoding="utf-8") as f:
                 return f.read()
@@ -254,14 +253,6 @@ class AIAgent:
                 }
                 
             
-            # if generated_sql.startswith("```"):
-            #     generated_sql = generated_sql.split("```")[1]
-            #     if generated_sql.startswith("sql"):
-            #         generated_sql = generated_sql[3:]
-            #     generated_sql = generated_sql.strip()
-            # elif generated_sql.lower().startswith("sql "):
-            #     generated_sql = generated_sql[4:].strip()
-               # sql = sql.split("```", 2)[1 if sql.startswith("```sql") else 0].strip()
                
             validated_sql = validation["sql"]   
 
@@ -306,7 +297,7 @@ class AIAgent:
                 "file_path": None,
                 "error": str(e)
             }
-
+    # MIGHT BE CREATING TOOL BINDING ISSUES
     def query_database(self, question: str) -> Dict[str, Any]:
         """Query the default student_grades.db — returns structured result for frontend rendering."""
         return self._execute_db_query(self.default_db, question)

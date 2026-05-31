@@ -3,8 +3,10 @@ import PyPDF2
 import pandas as pd
 from processor import TextAnalysisProcessor
 from langchain_agent4 import AIAgent  # the refactored agent with structured DB output
+from agent5 import ShortResearchAgent  # web agent with async and better config
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -24,8 +26,13 @@ def get_agent(working_dir: str):
         st.stop()
     return AIAgent(api_key=api_key, working_dir=working_dir)
 
-processor = get_processor()
+@st.cache_resource
+def get_researcher():
+    return ShortResearchAgent()
 
+
+processor = get_processor()
+researcher = get_researcher()
 # ─── UI ────────────────────────────────────────────────────────────────────────
 
 st.markdown("<h1 style='color: #ADD8E6;'>ReAct Agent/DB explorer/SQL dashboard</h1>", unsafe_allow_html=True)
@@ -45,6 +52,7 @@ task = st.sidebar.selectbox(
         "Query Database (one-shot)",
         "Database Explorer",           # ← NEW
         "Conversational AI Agent",
+        "Semantic Web Researcher"         # ← NEW
     ]
 )
 
@@ -160,6 +168,114 @@ elif task == "Database Explorer":
                                 st.caption(f"✅ {res.row_count} rows returned")
                             else:
                                 st.info("Query returned no rows.")
+                                
+
+
+
+# ====================== SEMANTIC WEB RESEARCHER ======================
+elif task == "Semantic Web Researcher":
+    st.subheader("🌐 Semantic Web Researcher")
+    st.markdown("""
+    **Hierarchical Semantic RAG** — Web Search → Fetch → Chunk → Semantic Rank → Extractive Summary  
+    *Transparent, AI-powered research tool (not a full agent)*
+    """)
+
+    # Query Input
+    query = st.text_area(
+        "🔍 Research Query",
+        height=120,
+        placeholder="Awards for financial professional services in 2026 in California",
+        help="More specific queries yield better semantic results"
+    )
+
+    st.divider()
+    st.markdown("**⚙️ Retrieval Parameters**")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        search_results = st.slider("Search Results (URLs)", 5, 25, 10, help="Number of web pages to retrieve")
+    with col2:
+        passages_per_page = st.slider("Passages per Page", 1, 10, 4)
+    with col3:
+        top_passages = st.slider("Top Passages", 3, 12, 5)
+    with col4:
+        summary_sentences = st.slider("Summary Sentences", 2, 8, 3)
+    with col5:
+        timeout = st.slider("Page Timeout (sec)", 8, 30, 16)
+
+    st.divider()
+
+    if st.button("🚀 Run Semantic Research", type="primary", use_container_width=True):
+        if not query.strip():
+            st.error("Please enter a research query.")
+        else:
+            result_container = st.container()
+            
+            with result_container:
+                # Progress tracking
+                progress_bar = st.progress(0, text="Starting research...")
+                status_text = st.empty()
+
+                # Step 1: Search
+                status_text.info("🔎 Searching the web...")
+                progress_bar.progress(20, text="Searching the web...")
+                time.sleep(0.3)  # Small visual delay
+
+                # Run the full research (we keep it in one call for simplicity)
+                with st.spinner("Fetching pages and performing semantic analysis..."):
+                    result = researcher.run(
+                        query=query,
+                        search_results=search_results,
+                        passages_per_page=passages_per_page,
+                        top_passages=top_passages,
+                        summary_sentences=summary_sentences,
+                        timeout=timeout
+                    )
+
+                progress_bar.progress(100, text="Research completed!")
+
+                st.success(f"✅ Completed in **{result['time']:.1f} seconds**")
+
+                # ─── EXTRACTIVE SUMMARY CARD ─────────────────────────────────
+                st.markdown("### 📝 Extractive Summary")
+                summary_card = st.container(border=True)
+                with summary_card:
+                    st.markdown(
+                        f"""
+                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; 
+                                    border-left: 5px solid #4A90E2;">
+                            {result["summary"]}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                st.divider()
+
+                # ─── TOP PASSAGES ───────────────────────────────────────────
+                st.markdown(f"### 🔍 Top {len(result['passages'])} Semantically Ranked Passages")
+
+                for i, p in enumerate(result["passages"], 1):
+                    score_color = "#27ae60" if p['score'] > 0.7 else "#f39c12" if p['score'] > 0.5 else "#e74c3c"
+                    
+                    with st.expander(
+                        f"#{i} Score: <span style='color:{score_color}; font-weight:bold;'>{p['score']:.3f}</span> "
+                        f"{p['url'][:65]}...", 
+                        expanded=(i <= 2)
+                    ):
+                        # Card-like passage display
+                        st.markdown(f"**Source:** [{p['url']}]({p['url']})")
+                        
+                        passage_card = st.container(border=True)
+                        with passage_card:
+                            st.write(p['passage'])
+                        
+                        st.caption(f"Relevance Score: **{p['score']:.3f}**")
+
+                # Optional: Show parameters used
+                with st.expander("ℹ️ Parameters Used", expanded=False):
+                    st.json(result.get("params_used", {}))                          
+                               
 
 
 # ====================== FileSysem and SQL Agent ======================

@@ -8,14 +8,20 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import time
 
-SEARCH_RESULTS = 6        # How many URLs to check
-PASSAGES_PER_PAGE = 4     # How many passages to pull from each URL
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2" # Fast, high-quality model
-TOP_PASSAGES = 5          # How many relevant passages to use for the summary
-SUMMARY_SENTENCES = 3     # How many sentences in the final summary
-TIMEOUT = 16              # How long to wait for a webpage to load
+# FOR ASYNCHRONOUS URL REQUESTS
+import asyncio
+import aiohttp
+# DEFAULT CONSTANTS (USED AS FALLBACKS AND CONFIGURATION)
+# Default constants (used as fallbacks)
+DEFAULT_SEARCH_RESULTS = 10 # How many URLs to check
+DEFAULT_PASSAGES_PER_PAGE = 4 # How many passages to pull from each URL
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+DEFAULT_TOP_PASSAGES = 5 # How many relevant passages to use for the summary
+DEFAULT_SUMMARY_SENTENCES = 3 # How many sentences in the final summary
+DEFAULT_TIMEOUT = 16 # How long to wait for a webpage to load
+              
 
-# Search anf fetch webpages
+# Search and fetch webpages
 
 # DDGS gives a wrapper URL not the real URL. The link is not the final destination. 
 def unwrap_ddg(url):
@@ -31,7 +37,7 @@ def unwrap_ddg(url):
         pass
     return url
 
-def search_web(query,  max_results = SEARCH_RESULTS):
+def search_web(query,  max_results = DEFAULT_SEARCH_RESULTS):
     """Search the web and return a list of URLs."""
     urls = []
     with DDGS() as ddgs:
@@ -45,7 +51,8 @@ def search_web(query,  max_results = SEARCH_RESULTS):
     return urls
 
 # Fetch and clean the page with. requests and BeautifulSoup
-def fetch_text(url, timeout=TIMEOUT):
+# fetch_text() needs to be made asynchronous
+def fetch_text(url, timeout=DEFAULT_TIMEOUT):
     """Fetch and clean text content from a URL."""
     
     headers = {
@@ -61,7 +68,7 @@ def fetch_text(url, timeout=TIMEOUT):
     print(f"Fetching: {url}")
     
     try:
-        r = requests.get(url, timeout=TIMEOUT, headers=headers, allow_redirects=True)
+        r = requests.get(url, timeout=DEFAULT_TIMEOUT, headers=headers, allow_redirects=True)
         print(f"  → Status: {r.status_code} | Content-Type: {r.headers.get('content-type', 'N/A')}")
         if r.status_code != 200:
             print(f"  → Failed with status {r.status_code}")
@@ -73,6 +80,7 @@ def fetch_text(url, timeout=TIMEOUT):
             print("  → Non-HTML content skipped")
             return ""
         
+        # Start Scraping gathered URLs
         soup = BeautifulSoup(r.text, "html.parser")
         
         # Remove all unecessary tags
@@ -131,7 +139,12 @@ class ShortResearchAgent():
         self.embedder = SentenceTransformer(embed_model)
         
         
-    def run(self, query):
+    def run(self, query: str,
+            search_results: int = DEFAULT_SEARCH_RESULTS,
+            passages_per_page: int = DEFAULT_PASSAGES_PER_PAGE,
+            top_passages: int = DEFAULT_TOP_PASSAGES,
+            summary_sentences: int = DEFAULT_SUMMARY_SENTENCES,
+            timeout: int = DEFAULT_TIMEOUT):
         start = time.time()
         # 1. Search
         urls = search_web(query)
@@ -143,7 +156,7 @@ class ShortResearchAgent():
             if not txt:
                 continue
             chunks = chunk_passages(txt, max_words=120, overlap=20)
-            for c in chunks[ : PASSAGES_PER_PAGE]:
+            for c in chunks[ : DEFAULT_PASSAGES_PER_PAGE]:
                 docs.append({"url": u, "passage": c})
                 
         if not docs:
@@ -170,7 +183,7 @@ class ShortResearchAgent():
         
         # sims = [cosine(e, q_emb) for e in emb_txts]
         sims = [cosine_sklearn(e, q_emb) for e in emb_txts]
-        top_idx = np.argsort(sims)[::-1][:TOP_PASSAGES]
+        top_idx = np.argsort(sims)[::-1][:DEFAULT_TOP_PASSAGES]
         top_passages = [{"url": docs[i]["url"], "passage": docs[i]["passage"], "score": float(sims[i])} for i in top_idx]
         
         # 5. Rerank passages to passages to create a mini summary
@@ -186,7 +199,8 @@ class ShortResearchAgent():
             sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
             sent_sims = [cosine_sklearn(e, q_emb) for e in sent_embs]
             
-            top_sent_idx = np.argsort(sent_sims)[::-1][:SUMMARY_SENTENCES]
+            # 6. Select top sentences for summary
+            top_sent_idx = np.argsort(sent_sims)[::-1][:DEFAULT_SUMMARY_SENTENCES]
             chosen = [sentences[idx] for idx in top_sent_idx]
             
             # deduplicate and format
@@ -201,13 +215,21 @@ class ShortResearchAgent():
             summary = " ".join(lines)
             
         elapsed = time.time() - start
-        return {"query": query, "passages": top_passages, "summary": summary, "time": elapsed}
+        return {"query": query, "passages": top_passages, "summary": summary, "time": elapsed,
+                "params_used": {
+                "search_results": search_results,
+                "passages_per_page": passages_per_page,
+                "top_passages": top_passages,
+                "summary_sentences": summary_sentences,
+                "timeout": timeout
+            }              
+                }
     
                             
         
 if __name__=="__main__":
     agent = ShortResearchAgent()
-    q = "What causes urban heat islands and how can cities reduce them?"
+    q = "How does Measure theory come from the dirichlet? What are some intuitive examples of this connection?"
     
     print(f"Running query: {q}\n")
     out = agent.run(q)

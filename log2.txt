@@ -1,0 +1,167 @@
+2026-05-27 22:59:55.067 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "what databases do you have available"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 22:59:55.067 Beginning script thread
+2026-05-27 22:59:55.067 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "what databases do you have available"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 22:59:55.067 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 22:59:55.067 Sessions still active: dict_keys([])
+2026-05-27 22:59:55.068 Files: 0; Sessions with files: 0
+2026-05-27 22:59:55.073 Cache key: d41d8cd98f00b204e9800998ecf8427e
+2026-05-27 22:59:56.606 Removing orphaned files...
+2026-05-27 23:00:10.873 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "what is the schema for ecommerce.db"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 23:00:10.873 Beginning script thread
+2026-05-27 23:00:10.873 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "what is the schema for ecommerce.db"
+    file_uploader_state {
+    }
+  }
+}
+, page_script_hash='751e1479bb21b10371074374aed490ac', context_info=timezone: "Asia/Jerusalem"
+timezone_offset: -180
+locale: "en-GB"
+url: "http://localhost:8501/"
+is_embedded: false
+color_scheme: "dark"
+)
+2026-05-27 23:00:10.874 Disconnecting files for session with ID 58e101b4-fbc4-4c41-8643-96093f1f4d1c
+2026-05-27 23:00:10.874 Sessions still active: dict_keys([])
+2026-05-27 23:00:10.874 Files: 0; Sessions with files: 0
+2026-05-27 23:00:10.877 Cache key: d41d8cd98f00b204e9800998ecf8427e
+2026-05-27 23:00:14.633 Removing orphaned files...
+2026-05-27 23:00:51.351 Received the following back message:
+rerun_script {
+  widget_states {
+    widgets {
+      id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+      string_value: "Conversational AI Agent"
+    }
+    widgets {
+      id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+      string_value: "."
+    }
+    widgets {
+      id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+      chat_input_value {
+        data: "how many different products are there in ecommerce.db"
+        file_uploader_state {
+        }
+      }
+    }
+  }
+  page_script_hash: "751e1479bb21b10371074374aed490ac"
+  context_info {
+    timezone: "Asia/Jerusalem"
+    timezone_offset: -180
+    locale: "en-GB"
+    url: "http://localhost:8501/"
+    is_embedded: false
+    color_scheme: "dark"
+  }
+}
+
+2026-05-27 23:00:51.352 Beginning script thread
+2026-05-27 23:00:51.352 Running script RerunData(widget_states=widgets {
+  id: "$$ID-238bae8a3bb49f7064c5834cf36e9be4-None"
+  string_value: "Conversational AI Agent"
+}
+widgets {
+  id: "$$ID-69d05592247896c83920704fd2d2a825-None"
+  string_value: "."
+}
+widgets {
+  id: "$$ID-0c03c23ff152d97a2b464135738ff635-None"
+  chat_input_value {
+    data: "how many different products are there in ecommerce.db"
+    file_uploader_state {
+    }
+  }
