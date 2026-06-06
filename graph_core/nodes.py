@@ -4,14 +4,16 @@ from typing import Optional
 from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
 from graph_core.state import AgentState
 from langchain_agent4 import AIAgent
+from agent5 import ShortResearchAgent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from pydantic import BaseModel, Field
 from langchain_groq import ChatGroq
 from langchain_community.tools import TavilySearchResults
-from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
+from langchain_community.tools.ddg_search import DuckDuckGoSearchRun # drop this when semantic agent is integrated
 from langchain_core.output_parsers import StrOutputParser
 
 _agent = None
+_research_agent = None
 
 
 def get_agent(working_dir: str = "."):
@@ -20,6 +22,13 @@ def get_agent(working_dir: str = "."):
         api_key = os.getenv('GROQ_API_KEY')
         _agent = AIAgent(api_key=api_key, working_dir=working_dir) # Initialize ReAct DB & FileSystem Agent
     return _agent
+
+def get_research_agent(working_dir: str = "."):
+    global _research_agent
+    if _research_agent is None:
+        print("Loading ShortResearchAgent and embedding model...")
+        _research_agent = ShortResearchAgent()
+    return _research_agent
 
 # DB and FILESYSTEM WORKER NODE
 def agent_node(state: AgentState) -> AgentState:
@@ -157,11 +166,19 @@ def researcher_node(state: AgentState) -> AgentState:
         topic = "how langGraph agents fail and succeed"
     print(f"Researcher node is looking up: {topic}")
     
-    search  = DuckDuckGoSearchRun()
     try:
-        results = search.run(f"key facts and latest news about {topic}")
+        research_agent = get_research_agent()
+        research_output = research_agent.run(topic)
+        results = research_output.get("summary", "No summary could be generated.") # not sure this extra step is needed, but it allows us to control what we return to the supervisor and avoid overwhelming it with too much text
     except Exception as e:
-        results = f"Error during search: {str(e)}"
+        results = f"Error during semantic web research: {str(e)}"
+        
+    
+    # search  = DuckDuckGoSearchRun()
+    # try:
+    #     results = search.run(f"key facts and latest news about {topic}")
+    # except Exception as e:
+    #     results = f"Error during search: {str(e)}"
         
     print("Research complete,")
     
