@@ -3,6 +3,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage
 from graph_core.state import AgentState
 from graph_core.nodes import agent_node, supervisor_node, writer_node, researcher_node
+from pydantic import BaseModel, Field
 
 
 def build_graph():
@@ -13,6 +14,7 @@ def build_graph():
     workflow.add_node("db_agent", agent_node)
     workflow.add_node("researcher_agent", researcher_node)
     workflow.add_node("writer_agent", writer_node)
+    
     
     workflow.add_edge(START, "supervisor")
     
@@ -31,6 +33,7 @@ def build_graph():
     workflow.add_edge("db_agent", "supervisor")
     workflow.add_edge("researcher_agent", "supervisor")
     workflow.add_edge("writer_agent", "supervisor")
+    
     
     return workflow.compile(checkpointer=MemorySaver())
 

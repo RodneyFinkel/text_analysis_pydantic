@@ -1,5 +1,6 @@
 # graph_core/nodes.py
 import os
+from typing import Optional
 from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
 from graph_core.state import AgentState
 from langchain_agent4 import AIAgent
@@ -7,6 +8,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from pydantic import BaseModel, Field
 from langchain_groq import ChatGroq
 from langchain_community.tools import TavilySearchResults
+from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
+from langchain_core.output_parsers import StrOutputParser
 
 _agent = None
 
@@ -27,7 +30,7 @@ def agent_node(state: AgentState) -> AgentState:
     # Call original ReAct agent
     result = agent.chat(state["messages"])
     
-    updates = {"messages": [], "db_results": []}
+    updates: AgentState = {"messages": [], "db_results": []}
     
     if result["type"] == "db_result":
         db_result = result["result"]
@@ -74,30 +77,95 @@ def agent_node(state: AgentState) -> AgentState:
 # SUPERVISOR NODE
 class Route(BaseModel):
     next_node: str = Field(description="The next agent to route to: 'db_agent', 'writer_agent', 'researcher_agent', or 'FINISH'.")
+    topic: Optional[str] = Field(None, description="Extracted main topic if relevant")
     
 def supervisor_node(state: AgentState) -> AgentState:
     print("Supervisor Node activated")
     llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0)
+    #llm = ChatOllama(model="llama3", temperature=0)
     structured_llm = llm.with_structured_output(Route)
     
-    prompt = ChatPromptTemplate.from_messages([(
-        "system", "You are a supervisor. Route the user input to the correct agent: "
-                   "db_agent (DB/Files), researcher_agent (Web search/API), "
-                   "writer_agent (Drafting content). If finished, route to FINISH."),
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """You are a supervisor routing agent responsible for orchestrating a multi-agent workflow.
+        
+        Available agents:
+        - db_agent: ONLY for file system operations or database queries (list files, read file, SQL, etc.)
+        - researcher_agent: ONLY when fresh web research is needed
+        - writer_agent: when user wants a blog post or written summary
+        - FINISH: when the task is complete or enough information has been gathered
+        
+        Strict Termination Rules:
+        1. If a blog post or summary has already been drafted (blog_post drafted = True), you MUST select FINISH. Do not call writer_agent again.
+        2. If a database query or file operation has already been executed and answered in the conversation history, you MUST select FINISH.
+        3. If research_data already exists in the state AND the last message mentions "Research completed", go to writer_agent.
+        4. Do NOT call researcher_agent or writer_agent repeatedly for the same topic.
+        5. Extract the main topic when routing to researcher_agent or writer_agent.
+        6. For casual chat, greetings, or empty requests → FINISH.
+        
+        Current workflow state metrics:
+        - research_data length = {len_research}
+        - blog_post drafted = {has_blog_post}"""),
         MessagesPlaceholder(variable_name="messages")
     ])
     chain = prompt | structured_llm
-    result = chain.invoke({"messages": state["messages"]})
-    print(f"Supervisor decision: {result}")
-    return {"next_node": result.next_node}
+    # Dynamically evaluate metrics from the real-time graph state
+    len_research = len(state.get("research_data", []))
+    has_blog_post = bool(state.get("blog_post"))
+    result = chain.invoke({
+        "messages": state["messages"],
+        "len_research": len_research,
+        "has_blog_post": has_blog_post
+    })
+
+    print(f"Supervisor decision: {result.next_node} | topic: {result.topic}")
+    
+    updates: AgentState = {"next_node": result.next_node}
+    if result.topic:
+        updates["topic"] = result.topic
+        
+    return updates
+    #return {"next_node": result.next_node, "topic": result.topic}
 
 # WRITER NODE
-def writer_node(state: AgentState) -> AgentState:
-    # Logic to summarize db_results or research_results into a final doc
-    # Append to state["messages"]
-    return {"messages": [AIMessage(content="[Drafted professional response...]")]}
+def writer_node(state: AgentState):
+    """ A node that writes a blog post based on the research data."""
+    print("writer node is drafting the post")
+    
+    topic = state.get("topic") or "the given topic"
+    data = state.get("research_data", [])[-1] if state.get("research_data") else "No research data available."    
+    #llm = ChatOllama(model="llama3", temperature=0.1)
+    llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0.1)
+    prompt = ChatPromptTemplate.from_template((
+        """You are a tech blog writer. Write a short, engaging blog post about "{topic}" based ONLY on the following research data:
+        {research_data}
+        Return just the blog post content. No extra commentary."""
+    )
+    )
+    chain = prompt | llm | StrOutputParser()
+    response = chain.invoke({"topic": topic, "research_data":data})
+    print("Drafting complete.")
+    return {"blog_post": response,
+            "messages": [AIMessage(content=f"Drafted blog post on {topic}:\n {response}")]
+            }
+
 
 # RESEARCHER NODE
 def researcher_node(state: AgentState) -> AgentState:
-    pass
-
+    """A node that performs research on the given topic."""
+    topic = state.get("topic")
+    if not topic:
+        topic = "how langGraph agents fail and succeed"
+    print(f"Researcher node is looking up: {topic}")
+    
+    search  = DuckDuckGoSearchRun()
+    try:
+        results = search.run(f"key facts and latest news about {topic}")
+    except Exception as e:
+        results = f"Error during search: {str(e)}"
+        
+    print("Research complete,")
+    
+     # Only return the keys you want to update
+    return {"research_data": state.get("research_data", []) + [results],
+            "messages": [AIMessage(content=f"✅  Research completed on: {topic}")]
+            }

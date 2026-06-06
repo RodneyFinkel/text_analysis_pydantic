@@ -26,7 +26,10 @@ def main():
             inputs = {
                 "messages": [HumanMessage(content=user_input)],
                 "db_results": [],
-                "working_dir": working_dir
+                "working_dir": working_dir,
+                "research_data": [],
+                "blog_post": None,
+                "next_node": "FINISH" # default to FINISH, supervisor will update if needed
             }
             
             # Run the graph

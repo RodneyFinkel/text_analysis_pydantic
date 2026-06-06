@@ -16,9 +16,23 @@ class AgentState(TypedDict):
     messages: Annotated[List[BaseMessage], operator.add]
     db_results: Annotated[List[DbQueryResult], operator.add]
     working_dir: str
-    next_node: str # added for supervisor routing
+    next_node: str = "FINISH" # added for supervisor routing
+    topic: Optional[str] = None
+    research_data: Annotated[List[str], "List of research findings"] = [] # A list of findings
+    blog_post: Optional[str]  = None # The final output
     
+class WriterState(BaseModel):
+    """State for the writer agent"""
+    messages: Annotated[List[BaseMessage], operator.add]
+    topic: str
+    research_data: Annotated[List[str], "List of research findings"] # A list of findings
+    blog_post: str # The final output
     
-  
+class ResearcherState(BaseModel):
+    """State for the researcher agent"""
+    messages: Annotated[List[BaseMessage], operator.add]
+    topic: str
+    research_data: Annotated[List[str], "List of research findings"] # A blog style write up of the research findings
+    
     
     

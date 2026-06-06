@@ -46,9 +46,9 @@ def writer_node(state: AgentState):
     )
     )
     chain = prompt | llm | StrOutputParser()
-    response = chain.invoke({"topic": topic, "data": data})
+    response = chain.invoke({"topic": topic, "research_data":data})
     print("Drafting complete.")
-    return {"blog_post": response.content}
+    return {"blog_post": response}
 
 
 # ----- Build the LangGraph -----
