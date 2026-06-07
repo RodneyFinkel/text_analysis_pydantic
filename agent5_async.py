@@ -171,7 +171,12 @@ class ShortResearchAgent:
             "passages": top_passages_list,
             "summary": summary,
             "time": elapsed,
-            "params_used": { ... }   # truncated for brevity
+            "params_used": {
+                "search_results": search_results,
+                "passages_per_page": passages_per_page,
+                "top_passages": top_passages,
+                "summary_sentences": summary_sentences,
+                "timeout": timeout}   
         }
 
 # Helper functions (moved down, unchanged)
