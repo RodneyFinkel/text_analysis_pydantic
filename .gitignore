@@ -13,3 +13,5 @@ venv.bak/
 /DS_Store
 .DS_Store
 .agent.log
+agent.log
+/agent.log
