@@ -20,16 +20,10 @@ Alternatively use this link for a live demo: https://rodneyfinkel-text-analysis-
 
 
 
-
+#ReACT Agent for Filesystem and NL2SQL
 <img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 14 22" src="https://github.com/user-attachments/assets/c657de24-b4f0-4824-95ca-44769282e408" />
 
 <img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 13 50" src="https://github.com/user-attachments/assets/39f833ed-853a-40df-84c3-7720723015d6" />
-
-
-
-
-
-<img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 20 38" src="https://github.com/user-attachments/assets/3018ad5d-e9f4-47c0-bf95-6c1610c21978" />
 
 
 
@@ -43,8 +37,6 @@ FastAPI Swagger UI for LangGraph Multi Agent and endpoints for DB/Filesystem ReA
 <img width="954" height="965" alt="Screenshot 2026-06-07 at 4 43 54" src="https://github.com/user-attachments/assets/81cb4910-e0f7-474d-b5e8-aaad1d3289e4" />
 
 <img width="954" height="965" alt="Screenshot 2026-06-07 at 4 41 39" src="https://github.com/user-attachments/assets/82439e0d-a733-4613-899b-5e2ee37d538a" />
-
-
 
 
 Why Llama 3.3 70B Versatile?
