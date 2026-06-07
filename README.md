@@ -37,7 +37,6 @@ Alternatively use this link for a live demo: https://rodneyfinkel-text-analysis-
 
 <img width="1905" height="966" alt="Screenshot 2026-03-05 at 23 30 49" src="https://github.com/user-attachments/assets/0138e516-8167-4720-88f3-370c7c4edb6d" />
 
-<img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 21 04" src="https://github.com/user-attachments/assets/7a9cf355-75b8-40e7-9836-f42fb399917c" />
 
 FastAPI Swagger UI for LangGraph Multi Agent and endpoints for DB/Filesystem ReACT Agent and Asyn Semantic Web-Search with ChromaDb persistence
 
