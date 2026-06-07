@@ -1,22 +1,22 @@
 GROQ_API_KEY is needed inside a .env file
 Clone the repository
 
-# Create a virtual environment
+Create a virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On macOS/Linux:
+Activate the virtual environment
+On macOS/Linux:
 source venv/bin/activate
-# On Windows:
+On Windows:
 .\venv\Scripts\activate
 
 Install all required libraries using the requirements.txt file provided in the repository:
 pip install -r requirements.txt
 
 Launch the Streamlit server to view the app in your browser:
-streamlit run app.py
+streamlit run streamlit_app4.py
 
-Alternatively use this link for a live demo: http://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app
+Alternatively use this link for a live demo: https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
 
 
 
@@ -50,16 +50,11 @@ FastAPI Swagger UI for LangGraph Multi Agent and endpoints for DB/Filesystem ReA
 
 Why Llama 3.3 70B Versatile?
 
-Llama 3.3 70B's performance is comparable to much larger models. This model also scores high on benchmarks (92.1 on IFEval) for following user instructions. This is important  because it ensures the model adheres strictly to the constraints defined in the Pydantic schemas without chatter or formatting errors.
-
 It is specifically tuned to excel at JSON mode and Function Calling
-
 128K Context Window: Supports a very large 128,000-token context.  No need to build chunking or map-reduce logic.
 
 
-
-
-Using Pydantic replaces traditional prompt-engineering for output formatting by providing a schema contract that forces the LLM to return valid, structured data. This was chosen to eliminate unpredictable text chatter and ensure type-safe validation (like forcing confidence scores in Use Case 3 to be floats). Moving logic from raw strings to Python objects makes the app becomes more robust. 
+Using Pydantic replaces traditional prompt-engineering for output formatting by providing a schema contract that forces the LLM to return valid, structured data. This was chosen to eliminate unpredictable text chatter and ensure type-safe validation. Moving logic from raw strings to Python objects makes the app becomes more robust. 
 
 ## System Architecture & Data Pipeline Matrix
 
