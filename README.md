@@ -63,7 +63,8 @@ Using Pydantic replaces traditional prompt-engineering for output formatting by 
 
 ## System Architecture & Data Pipeline Matrix
 
-![Multi-Agent System Architecture](workspace/architecture.svg)
+<img width="1669" height="2527" alt="Mutli Agent Supervisor" src="https://github.com/user-attachments/assets/794baadc-83e5-427a-8df7-43e6b3842002" />
+
 
 
 
