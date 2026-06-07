@@ -14,7 +14,18 @@ load_dotenv()
 app = FastAPI(
     title="Multi-Agent System API",
     description="Multi-Agent System with LangGraph, Semantic RAG, and Safe NL2SQL",
-    version="1.0"
+    version="1.0.0",
+    contact={
+        "name": "Rodney Finkel",
+        "email": "rodneyfinkel@gmail.com"
+    },
+    swagger_ui_parameters={
+        "docExpansion": "none",
+        "defaultModelsExpandDepth": -1,
+        "displayRequestDuration": True,
+        "filter": True,
+        "deepLinking": True,
+    }
 )
 
 class ChatRequest(BaseModel):
