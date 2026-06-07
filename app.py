@@ -19,7 +19,7 @@ app = FastAPI(
 
 class ChatRequest(BaseModel):
     message: str
-    thread_id: Optional[str] =  "default"
+    thread_id: str 
     
 class ResearchRequest(BaseModel):
     query: str
@@ -52,7 +52,7 @@ def health():
 async def research_endpoint(req: ResearchRequest):
     """Semantic RAG research endpoint"""
     agent = ShortResearchAgent()
-    result = agent.run(query=req.query, search_results=req.search_results)
+    result = await agent.run(query=req.query, search_results=req.search_results)
     return ResearchResponse(**{k: result[k] for k in ["query", "summary", "passages", "time"]})
 
 # Full chat endpoint using LangGraph orchestrating the db and filesystem agent and the research agent
@@ -69,7 +69,8 @@ async def chat_endpoint(req: ChatRequest):
                     "blog_post": None,
                     "next_node": "FINISH" # default to FINISH, supervisor will update if needed
                 } 
-    result = graph.invoke(inputs, config)
+    #result = graph.invoke(inputs, config)
+    result = await graph.ainvoke(inputs, config)
     last_msg = result["messages"][-1]
     return {"response": getattr(last_msg, "content",  str(last_msg))}
 

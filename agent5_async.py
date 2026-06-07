@@ -86,98 +86,102 @@ class ShortResearchAgent:
         async with aiohttp.ClientSession() as session:
             tasks = [fetch_text_async(session, u, timeout) for u in urls]
             return await asyncio.gather(*tasks)   # Parallel fetching
-
-    def run(self, query: str, search_results=DEFAULT_SEARCH_RESULTS, 
+        
+        
+    # changed to async def run()
+    async def run(self, query: str, search_results=DEFAULT_SEARCH_RESULTS, 
             passages_per_page=DEFAULT_PASSAGES_PER_PAGE,
             top_passages=DEFAULT_TOP_PASSAGES, 
             summary_sentences=DEFAULT_SUMMARY_SENTENCES, 
             timeout=DEFAULT_TIMEOUT):
         
-        start = time.time()
-        urls = search_web(query, max_results=search_results)
-        print(f"Found {len(urls)} URLs.")
+            start = time.time()
+            urls = search_web(query, max_results=search_results)
+            print(f"Found {len(urls)} URLs.")
 
-        # ASYNC FETCH - this is the main performance win
-        loop = asyncio.get_event_loop()
-        texts = loop.run_until_complete(self._gather_pages(urls, timeout))
+            # ASYNC FETCH - this is the main performance win
+            # loop = asyncio.get_event_loop()
+            # texts = loop.run_until_complete(self._gather_pages(urls, timeout))
+            # --- FIXED: Use clean native await instead of extracting loop ---
+            texts = await self._gather_pages(urls, timeout)
 
-        # Rest of the logic is almost identical (chunking, embedding, ranking)
-        docs = []
-        for u, txt in zip(urls, texts):
-            if not txt:
-                continue
-            chunks = chunk_passages(txt, max_words=120, overlap=20)
-            for c in chunks[:passages_per_page]:
-                docs.append({"url": u, "passage": c})
+            # Rest of the logic is almost identical (chunking, embedding, ranking)
+            docs = []
+            for u, txt in zip(urls, texts):
+                if not txt:
+                    continue
+                chunks = chunk_passages(txt, max_words=120, overlap=20)
+                for c in chunks[:passages_per_page]:
+                    docs.append({"url": u, "passage": c})
 
-        if not docs:
-            return {"query": query, "passages": [], "summary": "No content fetched."}
+            if not docs:
+                return {"query": query, "passages": [], "summary": "No content fetched."}
 
-        # Embedding & ranking (unchanged core logic)
-        texts = [d["passage"] for d in docs]
-        emb_txts = self.embedder.encode(texts, convert_to_numpy=True)
-        q_emb = self.embedder.encode(query, convert_to_numpy=True)
+            # Embedding & ranking (unchanged core logic)
+            texts = [d["passage"] for d in docs]
+            emb_txts = self.embedder.encode(texts, convert_to_numpy=True)
+            q_emb = self.embedder.encode(query, convert_to_numpy=True)
 
-        def cosine_sklearn(a, b):
-            a = np.asarray(a).reshape(1, -1)
-            b = np.asarray(b).reshape(1, -1)
-            return cosine_similarity(a, b)[0][0]
+            def cosine_sklearn(a, b):
+                a = np.asarray(a).reshape(1, -1)
+                b = np.asarray(b).reshape(1, -1)
+                return cosine_similarity(a, b)[0][0]
 
-        sims = [cosine_sklearn(e, q_emb) for e in emb_txts]
-        top_idx = np.argsort(sims)[::-1][:top_passages]
-        top_passages_list = [{"url": docs[i]["url"], "passage": docs[i]["passage"], "score": float(sims[i])} for i in top_idx]
+            sims = [cosine_sklearn(e, q_emb) for e in emb_txts]
+            top_idx = np.argsort(sims)[::-1][:top_passages]
+            top_passages_list = [{"url": docs[i]["url"], "passage": docs[i]["passage"], "score": float(sims[i])} for i in top_idx]
 
-        # NEW: Persist top passages to ChromaDB
-        for p in top_passages_list:
-            self.collection.add(
-                documents=[p["passage"]],
-                metadatas=[{"url": p["url"], "query": query, "timestamp": time.time()}],
-                ids=[f"passage_{int(time.time()*1000)}"]
-            )
+            # NEW: Persist top passages to ChromaDB
+            for p in top_passages_list:
+                self.collection.add(
+                    documents=[p["passage"]],
+                    metadatas=[{"url": p["url"], "query": query, "timestamp": time.time()}],
+                    ids=[f"passage_{int(time.time()*1000)}"]
+                )
 
-        # Summary logic (unchanged)
-        # ... (same sentence reranking as original)
-        # 5. Rerank passages to passages to create a mini summary
-        sentences = []
-        for tp in top_passages_list:
-            for s in split_sentences(tp["passage"]):
-                sentences.append({"sent": s, "url": tp["url"]})
+            # Summary logic (unchanged)
+            # ... (same sentence reranking as original)
+            # 5. Rerank passages to passages to create a mini summary
+            sentences = []
+            for tp in top_passages_list:
+                for s in split_sentences(tp["passage"]):
+                    sentences.append({"sent": s, "url": tp["url"]})
+                    
+            if not sentences:
+                summary = "No summary could be generated"
+            else:
+                sent_texts = [s["sent"]for s in sentences]
+                sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
+                sent_sims = [cosine_sklearn(e, q_emb) for e in sent_embs]
                 
-        if not sentences:
-            summary = "No summary could be generated"
-        else:
-            sent_texts = [s["sent"]for s in sentences]
-            sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
-            sent_sims = [cosine_sklearn(e, q_emb) for e in sent_embs]
-            
-            # 6. Select top sentences for summary
-            top_sent_idx = np.argsort(sent_sims)[::-1][:DEFAULT_SUMMARY_SENTENCES]
-            chosen = [sentences[idx] for idx in top_sent_idx]
-            
-            # deduplicate and format
-            seen = set()
-            lines = []
-            for s in chosen:
-                key = s["sent"].lower()[:80] # check first 80 chars
-                if key in seen:
-                    continue # continue to next item (key) in the loop
-                seen.add(key)
-                lines.append(f"{s['sent']} (Source: {s['url']})")
-            summary = " ".join(lines)
+                # 6. Select top sentences for summary
+                top_sent_idx = np.argsort(sent_sims)[::-1][:DEFAULT_SUMMARY_SENTENCES]
+                chosen = [sentences[idx] for idx in top_sent_idx]
+                
+                # deduplicate and format
+                seen = set()
+                lines = []
+                for s in chosen:
+                    key = s["sent"].lower()[:80] # check first 80 chars
+                    if key in seen:
+                        continue # continue to next item (key) in the loop
+                    seen.add(key)
+                    lines.append(f"{s['sent']} (Source: {s['url']})")
+                summary = " ".join(lines)
 
-        elapsed = time.time() - start
-        return {
-            "query": query,
-            "passages": top_passages_list,
-            "summary": summary,
-            "time": elapsed,
-            "params_used": {
-                "search_results": search_results,
-                "passages_per_page": passages_per_page,
-                "top_passages": top_passages,
-                "summary_sentences": summary_sentences,
-                "timeout": timeout}   
-        }
+            elapsed = time.time() - start
+            return {
+                "query": query,
+                "passages": top_passages_list,
+                "summary": summary,
+                "time": elapsed,
+                "params_used": {
+                    "search_results": search_results,
+                    "passages_per_page": passages_per_page,
+                    "top_passages": top_passages,
+                    "summary_sentences": summary_sentences,
+                    "timeout": timeout}   
+            }
 
 # Helper functions (moved down, unchanged)
 def chunk_passages(text, max_words=120, overlap=20):
