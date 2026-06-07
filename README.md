@@ -58,28 +58,88 @@ It is specifically tuned to excel at JSON mode and Function Calling
 
 
 
-Use Case 1:
+
 Using Pydantic replaces traditional prompt-engineering for output formatting by providing a schema contract that forces the LLM to return valid, structured data. This was chosen to eliminate unpredictable text chatter and ensure type-safe validation (like forcing confidence scores in Use Case 3 to be floats). Moving logic from raw strings to Python objects makes the app becomes more robust. 
 
-Use Case 2:
-Again using pydantic instead of traditional prompt engineering ensured that the prompts where lightweight but effective.
 
-Use Case 3:
-Dataset: Created a CSV with 50 diverse short messages covering all labels (see intent_test.csv).
-Dataset is tested using test_intents.py which will assemble the intent_test_results.csv
-Handling ambiguous/not-fitting: Prompt explicitly instructs 'Ambiguous' for unclear, 'Uncategorized' for unfit.
-Confusion discussion: Mismatches mostly on edge cases (e.g., vague complaints misclassified as technical)."
-Qualitative: limitation: prompt could be more robust with examples.
+graph TD
+    %% Define User Interface / Client Layer
+    subgraph Clients ["Client / Interface Layer"]
+        CLI
+        UI
+        API_POST
+    end
+
+    %% The Orchestration Layer: LangGraph
+    subgraph LangGraph ["Orchestration Layer: LangGraph graph.py"]
+        direction TB
+        State[]
+
+        %% Hub & Spoke Routing Engine
+        SUPERVISOR(cite: supervisor_node nodes.py<br/>Llama-3.3-70B via Groq)
+
+        %% Worker Nodes
+        WORKER_RESEARCH(cite: researcher_node nodes.py<br/>Semantic Search & RAG)
+        WORKER_DB(cite: agent_node nodes.py<br/>DB/FileSystem Operations)
+        WORKER_WRITER(cite: writer_node nodes.py<br/>Blog Post Drafting)
+
+        %% Specialized Internal Logic
+        SQL_GUARD(cite: AST SQL Validator<br/>via sqlglot)
+    end
+
+    %% Execution and Tool Layer (Async Workers)
+    subgraph Execution_Layer ["Execution Layer: Async Workers & Models"]
+        RAG_PIPELINE(cite: ShortResearchAgent agent5_async.py)
+        REACT_DB(cite: AIAgent langchain_agent4.py)
+    end
+
+    %% External Data Sources
+    subgraph Data_Sources ["External Data & Persistence Layer"]
+        DDGS
+        SQLite
+        ChromaDB
+    end
+
+    %% Flow: Clients to LangGraph
+    CLI ==>|cite: graph.invoke inputs| LangGraph
+    UI ==>|cite: graph.invoke inputs| LangGraph
+    API_POST ==>|cite: graph.invoke inputs| LangGraph
+
+    %% Flow: Internal LangGraph Execution Loop (CRITICAL)
+    START(cite: Graph START) --> SUPERVISOR
+    SUPERVISOR -.->|cite: Decide NEXT based on State| NEXT_DECISION{cite: Routing Decision}
+
+    NEXT_DECISION ==>|cite: next_node = researcher_agent<br/>with topic| WORKER_RESEARCH
+    NEXT_DECISION ==>|cite: next_node = db_agent| WORKER_DB
+    NEXT_DECISION ==>|cite: next_node = writer_agent<br/>Hand-off for drafting| WORKER_WRITER
+    NEXT_DECISION ==>|cite: next_node = FINISH| END(cite: Graph END)
+
+    %% Flow: Workers Loop Back to Supervisor for Re-evaluation
+    WORKER_RESEARCH ==>|cite: State Updated: Research Data| SUPERVISOR
+    WORKER_DB ==>|cite: State Updated: DB results| SUPERVISOR
+    WORKER_WRITER ==>|cite: State Updated: blog_post drafted| SUPERVISOR
+
+    %% Flow: Workers interfacing with Execution Layer
+    WORKER_RESEARCH -.->|cite: Execute RAG Pipeline| RAG_PIPELINE
+    WORKER_DB -.->|cite: Pass ReAct Prompt| REACT_DB
+    REACT_DB -.->|cite: Extract SQL for Validation| SQL_GUARD
+    SQL_GUARD -.->|cite: If Valid & Read-Only| SQLite
+
+    %% Flow: Execution interfacing with External Tools
+    RAG_PIPELINE -.->|cite: Parallel Scrape aiohttp| DDGS
+    RAG_PIPELINE -.->|cite: Local Embedding Model| ChromaDB
+
+    %% Styling for clarity
+    classDef supervisor fill:#f9f,stroke:#333,stroke-width:2px,color:black;
+    classDef worker fill:#bbf,stroke:#333,stroke-width:1px,color:black;
+    classDef data fill:#dfd,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5,color:black;
+    classDef orchestrator fill:#eee,stroke:#333,stroke-width:2px,color:black;
+
+    class SUPERVISOR supervisor;
+    class WORKER_RESEARCH,WORKER_DB,WORKER_WRITER worker;
+    class DDGS,SQLite,ChromaDB data;
+    class LangGraph orchestrator;
 
 
-POSSIBLE IMPROVEMENTS
-
-Few-Shot Prompting: The current system uses "Zero-Shot" (no examples). Adding 3-5 Examples inside the processor.py prompts would reduce misclassifications for edge cases in the Intent task.
-
-Chunked Processing: For the Summarization task, implementing a Map-Reduce approach—summarizing individual chapters first and then combining them—would resolve the context window limitations for long documents.
-
-Confidence Thresholds: Implement a logic gate where if the confidence_score is below 0.6, the system automatically routes the message instead of attempting to categorize it.
-
-Multi Modal: Upgrading the type and variety of documents able to be analysed. OCR pipeline, Docling.
 
 
