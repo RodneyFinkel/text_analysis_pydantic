@@ -15,7 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 _agent = None
 _research_agent = None
 
-
+# Helper Functions
 def get_agent(working_dir: str = "."):
     global _agent
     if _agent is None or _agent.working_dir != os.path.abspath(working_dir):
