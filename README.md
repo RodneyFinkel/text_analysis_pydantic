@@ -39,6 +39,13 @@ Alternatively use this link for a live demo: http://rodneyfinkel-text-analysis-p
 
 <img width="1909" height="954" alt="Screenshot 2026-02-20 at 21 21 04" src="https://github.com/user-attachments/assets/7a9cf355-75b8-40e7-9836-f42fb399917c" />
 
+FastAPI Swagger UI for LangGraph Multi Agent and endpoints for DB/Filesystem ReACT Agent and Asyn Semantic Web-Search with ChromaDb persistence
+
+<img width="954" height="965" alt="Screenshot 2026-06-07 at 4 43 54" src="https://github.com/user-attachments/assets/81cb4910-e0f7-474d-b5e8-aaad1d3289e4" />
+
+<img width="954" height="965" alt="Screenshot 2026-06-07 at 4 41 39" src="https://github.com/user-attachments/assets/82439e0d-a733-4613-899b-5e2ee37d538a" />
+
+
 
 
 Why Llama 3.3 70B Versatile?
