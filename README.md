@@ -61,7 +61,7 @@ It is specifically tuned to excel at JSON mode and Function Calling
 
 Using Pydantic replaces traditional prompt-engineering for output formatting by providing a schema contract that forces the LLM to return valid, structured data. This was chosen to eliminate unpredictable text chatter and ensure type-safe validation (like forcing confidence scores in Use Case 3 to be floats). Moving logic from raw strings to Python objects makes the app becomes more robust. 
 
-![NL2SQL and LangGraph Pipeline Engine](docs/Mutli Agent Supervisor2.drawio.svg)
+![NL2SQL and LangGraph Pipeline Engine](workspace/Mutli Agent Supervisor2.drawio.svg)
 
 
 
