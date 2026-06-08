@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent System Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0b0f19;
+            color: #e5e7eb;
+            padding: 20px;
+            margin: 0;
+        }
+        .mermaid {
+            background: #111827;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #6366f1;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Agent System Architecture Diagram</h1>
+    <div class="mermaid">
+        flowchart TD
+            %% ==================== FRONTEND ====================
+            subgraph Frontend ["Frontend (index.html)"]
+                UI[UI Control Suite<br/>Tailwind + JS]
+                Modes[Three Modes<br/>• Full Graph Chat<br/>• Isolated ReAct Agent<br/>• Semantic Research]
+            end
+
+            %% ==================== API LAYER ====================
+            subgraph FastAPI ["FastAPI Backend (app.py)"]
+                Endpoints[REST Endpoints]
+                ChatEP[/chat<br/>LangGraph Orchestration/]
+                AgentEP[/agent<br/>ReAct Agent/]
+                ResearchEP[/research<br/>Async RAG/]
+                Health[/health/]
+            end
+
+            %% ==================== LANGGRAPH CORE ====================
+            subgraph LangGraph ["LangGraph Workflow (graph.py + nodes.py)"]
+                Supervisor[Supervisor Node<br/>Routing Logic]
+                State[AgentState<br/>Pydantic + MemorySaver]
+                
+                DBNode[db_agent Node]
+                ResearchNode[researcher_agent Node]
+                WriterNode[writer_agent Node]
+                EmailNode[email_agent Node]
+            end
+
+            %% ==================== AGENTS ====================
+            subgraph Agents ["Specialized Agents"]
+                ReActAgent[ReAct DB & Filesystem Agent<br/>langchain_agent4.py]
+                RAGAgent[Async Semantic Research Agent<br/>agent5_async.py]
+            end
+
+            %% ==================== TOOLS & SERVICES ====================
+            subgraph Tools ["Tools & Services"]
+                ToolsDB[SQL Tools + Guardrail<br/>sqlglot AST Safety]
+                ToolsFS[File System Tools]
+                Chroma[ChromaDB Vector Store<br/>Persistent Embeddings]
+                EmailSvc[Email Service<br/>SMTP + Rich HTML]
+            end
+
+            %% ==================== DATA LAYER ====================
+            subgraph Data ["Data & Persistence"]
+                SQLite[(SQLite<br/>student_grades.db)]
+                Parquet[Parquet Exports]
+                ChromaDB[(ChromaDB<br/>research_passages)]
+            end
+
+            %% ==================== EXTERNAL ====================
+            External[External Services<br/>DuckDuckGo + Web]
+            SMTP[SMTP Server<br/>Gmail / Custom]
+
+            %% ==================== CONNECTIONS ====================
+
+            UI --> Modes
+            Modes --> Endpoints
+
+            Endpoints --> ChatEP
+            Endpoints --> AgentEP
+            Endpoints --> ResearchEP
+
+            ChatEP --> Supervisor
+            AgentEP --> ReActAgent
+            ResearchEP --> RAGAgent
+
+            Supervisor --> DBNode
+            Supervisor --> ResearchNode
+            Supervisor --> WriterNode
+            Supervisor --> EmailNode
+
+            DBNode <--> ReActAgent
+            ResearchNode <--> RAGAgent
+
+            ReActAgent --> ToolsDB
+            ReActAgent --> ToolsFS
+            ReActAgent --> SQLite
+
+            RAGAgent --> External
+            RAGAgent --> Chroma
+
+            EmailNode --> EmailSvc
+            EmailSvc --> SMTP
+
+            ReActAgent --> Parquet
+            WriterNode --> EmailNode
+            ResearchNode --> EmailNode
+
+            classDef frontend fill:#4f46e5,stroke:#6366f1,color:white
+            classDef api fill:#7c3aed,stroke:#a5b4fc,color:white
+            classDef core fill:#0ea5e9,stroke:#67e8f9,color:black
+            classDef agent fill:#10b981,stroke:#34d399,color:black
+            classDef data fill:#f59e0b,stroke:#fbbf24,color:black
+
+            class UI,Modes frontend
+            class FastAPI,Endpoints,ChatEP,AgentEP,ResearchEP api
+            class LangGraph,Supervisor,State core
+            class ReActAgent,RAGAgent,DBNode,ResearchNode,WriterNode,EmailNode agent
+            class SQLite,Parquet,ChromaDB,Chroma data
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: "dark",
+            flowchart: { 
+                curve: 'basis',
+                useMaxWidth: true
+            }
+        });
+    </script>
+</body>
+</html>
