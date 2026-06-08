@@ -3,7 +3,7 @@ import PyPDF2
 import pandas as pd
 from processor import TextAnalysisProcessor
 from langchain_agent4 import AIAgent  # the refactored agent with structured DB output
-from agent5 import ShortResearchAgent  # web agent with async and better config
+from scripts.agent5 import ShortResearchAgent  # web agent with async and better config
 import os
 from dotenv import load_dotenv
 import time

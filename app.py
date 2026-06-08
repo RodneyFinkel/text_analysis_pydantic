@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage
 from graph_core.graph import graph
 from agent5_async import ShortResearchAgent
 from langchain_agent4 import AIAgent
+import uuid
 
 load_dotenv()
 
@@ -30,7 +31,10 @@ app = FastAPI(
 
 class ChatRequest(BaseModel):
     message: str
-    thread_id: str 
+    thread_id: Optional[str] = None
+    email: Optional[str] = None
+    name: Optional[str] = "User"
+    email_target: Optional[str] = None  # Expected payload values: 'raw_research', 'blog_post', 'db_results'
     
 class ResearchRequest(BaseModel):
     query: str
@@ -70,7 +74,18 @@ async def research_endpoint(req: ResearchRequest):
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     """Full LangGraph agent chat endpoint"""
-    working_dir = "."
+    #working_dir = "."
+    working_dir = os.path.abspath(".")
+    
+    # AUTOMATION GATE: Prevent thread contamination automatically
+    active_thread = req.thread_id
+    if not active_thread or active_thread.strip() in ["", "string", "new", "default"]:
+        # Generate a pristine unique tracking id for this run
+        active_thread = f"run_{uuid.uuid4().hex[:10]}"
+        print(f"🔄 Notice: Generating isolated state container: {active_thread}")
+    else:
+        print(f"💾 Notice: Re-entering existing state session container: {active_thread}")
+        
     config = {"configurable": {"thread_id": req.thread_id }}
     inputs = {
                     "messages": [HumanMessage(content=req.message)],
@@ -78,7 +93,13 @@ async def chat_endpoint(req: ChatRequest):
                     "working_dir": working_dir,
                     "research_data": [],
                     "blog_post": None,
-                    "next_node": "FINISH" # default to FINISH, supervisor will update if needed
+                    "next_node": "FINISH", # default to FINISH, supervisor will update if needed
+                    
+                    # Hydrating explicit initialization contexts straight into the graph
+                    "recipient_email": req.email,
+                    "recipient_name": req.name,
+                    "email_target_type": req.email_target,
+                    "email_sent_status": False
                 } 
     #result = graph.invoke(inputs, config)
     result = await graph.ainvoke(inputs, config)

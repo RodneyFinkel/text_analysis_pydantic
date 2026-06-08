@@ -21,6 +21,12 @@ class AgentState(TypedDict):
     research_data: Annotated[List[str], "List of research findings"] = [] # A list of findings
     blog_post: Optional[str]  = None # The final output
     
+    # --- ADDED FOR EMAIL ROUTING & TARGETING ---
+    recipient_email: Optional[str] = None
+    recipient_name: Optional[str] = None
+    email_target_type: Optional[str] = None  # Options: 'raw_research', 'blog_post', 'db_results'
+    email_sent_status: bool = False
+    
 class WriterState(BaseModel):
     """State for the writer agent"""
     messages: Annotated[List[BaseMessage], operator.add]

@@ -15,5 +15,3 @@ venv.bak/
 .agent.log
 agent.log
 /agent.log
-.scripts
-scripts

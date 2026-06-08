@@ -119,8 +119,12 @@ class ShortResearchAgent:
 
             # Embedding & ranking (unchanged core logic)
             texts = [d["passage"] for d in docs]
-            emb_txts = self.embedder.encode(texts, convert_to_numpy=True)
-            q_emb = self.embedder.encode(query, convert_to_numpy=True)
+           # emb_txts = self.embedder.encode(texts, convert_to_numpy=True)
+            #q_emb = self.embedder.encode(query, convert_to_numpy=True)
+            
+            # NEW ASYNC EMBEDDINGS
+            emb_txts = await asyncio.to_thread(self.embedder.encode, texts, show_progress_bar=True, convert_to_numpy=True)
+            q_emb = await asyncio.to_thread(self.embedder.encode, query, show_progress_bar=True, convert_to_numpy=True)
 
             def cosine_sklearn(a, b):
                 a = np.asarray(a).reshape(1, -1)
@@ -151,7 +155,9 @@ class ShortResearchAgent:
                 summary = "No summary could be generated"
             else:
                 sent_texts = [s["sent"]for s in sentences]
-                sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
+                #sent_embs = self.embedder.encode(sent_texts, convert_to_numpy=True, show_progress_bar=True)
+                # NEW ASYNCHRONOUS NON BLOCKING Offload summary sentence matrix multiplication to an internal worker thread
+                sent_embs = await asyncio.to_thread(self.embedder.encode, sent_texts, convert_to_numpy=True, show_progress_bar=True)
                 sent_sims = [cosine_sklearn(e, q_emb) for e in sent_embs]
                 
                 # 6. Select top sentences for summary
@@ -204,8 +210,12 @@ def split_sentences(text):
     parts = re.split(r'(?<=[.!?])\s+', text)
     return [p.strip() for p in parts if p.strip()]
 
+
 if __name__ == "__main__":
-    agent = ShortResearchAgent()
-    # Test async run
-    result = agent.run("What causes urban heat islands and how can cities reduce them?")
-    print(result["summary"])
+    async def main():
+        agent = ShortResearchAgent()
+        # Test async run
+        result = await agent.run("What causes urban heat islands and how can cities reduce them?")
+        print(result["summary"])
+        
+    asyncio.run(main())
