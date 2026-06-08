@@ -10,6 +10,10 @@ from agent5_async import ShortResearchAgent
 from langchain_agent4 import AIAgent
 import uuid
 
+## FRONTEND
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 load_dotenv()
 
 app = FastAPI(
@@ -56,6 +60,12 @@ def get_db_agent(working_dir: str=".") -> AIAgent:
     if not api_key:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set in environment variables")
     return AIAgent(api_key=api_key, working_dir=working_dir)
+
+
+# NEW FRONTEND
+@app.get("/")
+async def serve_dashboard():
+    return FileResponse("static/index.html")
 
     
 @app.get("/health")

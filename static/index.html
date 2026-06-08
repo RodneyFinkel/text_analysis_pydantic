@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent System Control Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Custom scrollbar adjustments for dense data elements */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-gray-100 font-sans h-screen flex overflow-hidden">
+
+    <aside class="w-80 bg-[#111827] border-r border-gray-800 flex flex-col justify-between">
+        <div>
+            <div class="p-6 border-b border-gray-800">
+                <h1 class="text-xl font-bold text-indigo-400 tracking-wide">Orchestrator UI</h1>
+                <p class="text-xs text-gray-400 mt-1">LangGraph &amp; ReAct Control Suite</p>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <button onclick="switchMode('chat-mode')" id="btn-chat-mode" class="mode-btn w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 transition-all">
+                    <span class="mr-3">💬</span> Full Graph Chat Node
+                </button>
+                <button onclick="switchMode('agent-mode')" id="btn-agent-mode" class="mode-btn w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-all">
+                    <span class="mr-3">🗄️</span> Safe DB &amp; File Agent
+                </button>
+                <button onclick="switchMode('research-mode')" id="btn-research-mode" class="mode-btn w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-all">
+                    <span class="mr-3">🌐</span> Semantic Web Researcher
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-4 m-4 bg-[#1f2937]/50 border border-gray-800 rounded-xl space-y-3">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">State Initialization Payload</h3>
+            <div>
+                <label class="block text-[11px] text-gray-500 mb-1">THREAD ID (AUTOMATED PIN)</label>
+                <input type="text" id="state-thread-id" placeholder="Auto-generated if empty" class="w-full bg-[#111827] border border-gray-700 rounded p-1.5 text-xs focus:outline-none focus:border-indigo-500 text-indigo-300">
+            </div>
+            <div>
+                <label class="block text-[11px] text-gray-500 mb-1">ROUTING TARGET EMAIL</label>
+                <input type="email" id="state-email" placeholder="rodneyfinkel@gmail.com" class="w-full bg-[#111827] border border-gray-700 rounded p-1.5 text-xs focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-[11px] text-gray-500 mb-1">DISPATCH ASSET TYPE</label>
+                <select id="state-email-target" class="w-full bg-[#111827] border border-gray-700 rounded p-1.5 text-xs focus:outline-none focus:border-indigo-500 text-gray-300">
+                    <option value="db_results">db_results</option>
+                    <option value="blog_post">blog_post</option>
+                    <option value="raw_research">raw_research</option>
+                </select>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#0e1322]">
+        
+        <header class="h-16 border-b border-gray-800 bg-[#111827]/50 flex items-center justify-between px-8 z-10">
+            <div class="flex items-center space-x-3">
+                <span id="system-status-indicator" class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-mono tracking-widest text-gray-400" id="current-view-title">FULL ROUTING WORKFLOW CHAT</span>
+            </div>
+            <div class="text-xs text-gray-500 font-mono">API Target: <span class="text-indigo-400">localhost:8000</span></div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 relative">
+
+            <section id="view-chat-mode" class="view-panel space-y-6 h-full flex flex-col justify-between max-w-4xl mx-auto pb-4">
+                <div id="chat-stream-box" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 text-sm">
+                    <div class="bg-indigo-950/30 border border-indigo-900/40 rounded-xl p-4 text-gray-300">
+                        <strong>🤖 System initialized:</strong> Enter your request to run the coordinated supervisor node loop.
+                    </div>
+                </div>
+                <div class="flex gap-3 bg-[#111827] p-3 rounded-xl border border-gray-800">
+                    <input type="text" id="chat-input" placeholder="Type a message (e.g., 'What is the schema for stocks.db, email the results')" class="flex-1 bg-transparent border-0 px-2 text-sm text-gray-100 focus:outline-none focus:ring-0" onkeydown="if(event.key === 'Enter') executeGraphChat()">
+                    <button onclick="executeGraphChat()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all">DISPATCH</button>
+                </div>
+            </section>
+
+            <section id="view-agent-mode" class="view-panel hidden max-w-5xl mx-auto space-y-6">
+                <div class="bg-[#111827] p-6 rounded-xl border border-gray-800 space-y-4">
+                    <h2 class="text-lg font-medium text-gray-200">Execute ReAct Isolated Command</h2>
+                    <p class="text-xs text-gray-400">Directly bypasses the supervisor routing matrix for debugging file listings or testing deep SQL logic.</p>
+                    <div class="space-y-2">
+                        <textarea id="agent-input" rows="3" placeholder="e.g., Show schema rules / list directories / query active tables" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-4">
+                            <input type="text" id="agent-wd" value="." class="bg-[#0b0f19] border border-gray-700 rounded px-3 py-1.5 text-xs font-mono text-gray-400" title="Working Directory Context">
+                        </div>
+                        <button onclick="executeIsolatedAgent()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all">EXECUTE ATOMIC NODE</button>
+                    </div>
+                </div>
+
+                <div id="agent-response-container" class="hidden space-y-4">
+                    <h3 class="text-xs font-mono text-gray-400 tracking-wider">RESPONSE PAYLOAD</h3>
+                    <div id="agent-output-target" class="bg-[#111827] border border-gray-800 rounded-xl p-6 overflow-hidden"></div>
+                </div>
+            </section>
+
+            <section id="view-research-mode" class="view-panel hidden max-w-5xl mx-auto space-y-6">
+                <div class="bg-[#111827] p-6 rounded-xl border border-gray-800 space-y-4">
+                    <h2 class="text-lg font-medium text-gray-200">Hierarchical Semantic RAG Engine</h2>
+                    <textarea id="research-input" rows="3" placeholder="Enter dense research topic query..." class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                        <div>
+                            <label class="block text-[11px] text-gray-500 mb-1">MAX DDG URL SPLITS</label>
+                            <input type="number" id="research-results" value="10" class="w-full bg-[#0b0f19] border border-gray-700 rounded p-2 text-xs font-mono">
+                        </div>
+                    </div>
+                    <button onclick="executeSemanticResearch()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg text-xs font-semibold tracking-widest transition-all">RUN SEMANTIC PIPELINE</button>
+                </div>
+
+                <div id="research-response-container" class="hidden space-y-6">
+                    <div>
+                        <h3 class="text-xs font-mono text-gray-400 tracking-wider mb-2">📝 EXTRACTIVE EMBEDDED SUMMARY</h3>
+                        <div id="research-summary-target" class="bg-gray-900 border-l-4 border-indigo-500 p-5 rounded-r-xl text-gray-300 leading-relaxed text-sm"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-mono text-gray-400 tracking-wider mb-2">🔍 SEMANTICALLY RANKED PASSAGES</h3>
+                        <div id="research-passages-target" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const API_HOST = window.location.origin;
+
+        // View Router
+        function switchMode(selectedModeId) {
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600/20', 'text-indigo-400', 'border', 'border-indigo-500/30');
+                btn.classList.add('text-gray-400');
+            });
+
+            document.getElementById(`view-${selectedModeId}`).classList.remove('hidden');
+            const targetBtn = document.getElementById(`btn-${selectedModeId}`);
+            targetBtn.classList.add('bg-indigo-600/20', 'text-indigo-400', 'border', 'border-indigo-500/30');
+            
+            document.getElementById('current-view-title').innerText = selectedModeId.replace('-', ' ').toUpperCase();
+        }
+
+        // Global Helper for Formatting DB/Filesystem Data Structures
+        function renderDatabaseResult(data, targetContainer) {
+            targetContainer.innerHTML = '';
+            
+            if (data.error) {
+                targetContainer.innerHTML = `<div class="bg-rose-950/40 border border-rose-900/50 text-rose-300 p-4 rounded-lg text-sm font-mono">⚠️ Database Execution Exception:<br>${data.error}</div>`;
+                return;
+            }
+
+            // 1. If SQL statements were parsed out, render inside standard Markdown-like Code Shells
+            if (data.sql) {
+                const sqlBlock = document.createElement('div');
+                sqlBlock.className = "mb-4 bg-gray-950 p-4 rounded-lg border border-gray-800 font-mono text-xs";
+                sqlBlock.innerHTML = `<div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">🔎 Generated Execution Clause</div><code class="text-emerald-400">${data.sql}</code>`;
+                targetContainer.appendChild(sqlBlock);
+            }
+
+            // 2. If it contains multi-row database tabular blocks, construct explicit tabular forms
+            if (data.columns && data.columns.length > 0) {
+                const tableContainer = document.createElement('div');
+                tableContainer.className = "overflow-x-auto border border-gray-800 rounded-lg max-h-96 overflow-y-auto";
+                
+                let tableHtml = `<table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-gray-800/70 border-b border-gray-700 sticky top-0"><tr>`;
+                
+                data.columns.forEach(col => {
+                    tableHtml += `<th class="p-3 text-gray-300 font-mono uppercase tracking-wider">${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody class="divide-y divide-gray-800 bg-[#111827]">`;
+
+                if (data.rows_preview && data.rows_preview.length > 0) {
+                    data.rows_preview.forEach(row => {
+                        tableHtml += `<tr class="hover:bg-gray-800/40">`;
+                        row.forEach(val => {
+                            tableHtml += `<td class="p-3 text-gray-300 font-mono">${val !== null ? val : '<span class="text-gray-600">NULL</span>'}</td>`;
+                        });
+                        tableHtml += `</tr>`;
+                    });
+                } else {
+                    tableHtml += `<tr><td colspan="${data.columns.length}" class="p-4 text-center text-gray-500 italic">Empty set returned.</td></tr>`;
+                }
+                
+                tableHtml += `</tbody></table>`;
+                tableContainer.innerHTML = tableHtml;
+                targetContainer.appendChild(tableContainer);
+
+                const reportingBadge = document.createElement('div');
+                reportingBadge.className = "mt-2 text-right text-xs text-gray-500 font-mono";
+                reportingBadge.innerText = `📦 Metrics Context: Evaluated ${data.row_count} lines`;
+                targetContainer.appendChild(reportingBadge);
+            }
+        }
+
+        // Helper to cleanly match layout parameters from Streamlit's structural outputs
+        function parseTextOutputContent(text, container) {
+            container.innerHTML = '';
+            
+            // Check if string structure implies filesystem arrays or sql templates
+            if (text.includes('|') || text.includes('CREATE TABLE') || text.startsWith('[')) {
+                const formattedPre = document.createElement('pre');
+                formattedPre.className = "p-4 bg-gray-950 border border-gray-800 rounded-lg text-xs font-mono whitespace-pre-wrap text-cyan-400 leading-relaxed";
+                formattedPre.innerText = text;
+                container.appendChild(formattedPre);
+            } else {
+                // Standard markdown multi-line spacing fallback
+                const cleanParagraph = document.createElement('p');
+                cleanParagraph.className = "text-sm text-gray-300 leading-relaxed whitespace-pre-wrap";
+                cleanParagraph.innerText = text;
+                container.appendChild(cleanParagraph);
+            }
+        }
+
+        // --- ENDPOINT TRIGGER 1: LANGGRAPH AGENT CHAT ---
+        async function executeGraphChat() {
+            const inputEl = document.getElementById('chat-input');
+            const userMsg = inputEl.value.trim();
+            if (!userMsg) return;
+
+            const streamBox = document.getElementById('chat-stream-box');
+            
+            // Append User Item
+            streamBox.innerHTML += `<div class="flex flex-col items-end"><div class="bg-indigo-600 text-white rounded-xl rounded-tr-none px-4 py-2.5 max-w-2xl font-medium shadow-md">${userMsg}</div></div>`;
+            inputEl.value = '';
+            streamBox.scrollTop = streamBox.scrollHeight;
+
+            // Generate temporary loader block
+            const loadingId = 'loading-' + Date.now();
+            streamBox.innerHTML += `<div class="flex flex-col items-start" id="${loadingId}"><div class="bg-gray-800 text-gray-400 rounded-xl rounded-tl-none px-4 py-2.5 flex items-center space-x-2"><span class="animate-spin text-xs">🌀</span> <span>Orchestrating state nodes...</span></div></div>`;
+            streamBox.scrollTop = streamBox.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_HOST}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: userMsg,
+                        thread_id: document.getElementById('state-thread-id').value || null,
+                        email: document.getElementById('state-email').value || null,
+                        name: "Rodney",
+                        email_target: document.getElementById('state-email-target').value || null
+                    })
+                });
+
+                document.getElementById(loadingId).remove();
+
+                if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
+                const data = await res.json();
+                
+                // Append Agent Answer
+                streamBox.innerHTML += `<div class="flex flex-col items-start"><div class="bg-[#111827] border border-gray-800 text-gray-200 rounded-xl rounded-tl-none px-4 py-3 max-w-3xl whitespace-pre-wrap shadow-sm leading-relaxed">${data.response}</div></div>`;
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                streamBox.innerHTML += `<div class="flex flex-col items-start"><div class="bg-rose-950/50 border border-rose-900 text-rose-300 rounded-xl rounded-tl-none px-4 py-2.5 font-mono text-xs">Error running graph pipeline: ${err.message}</div></div>`;
+            }
+            streamBox.scrollTop = streamBox.scrollHeight;
+        }
+
+        // --- ENDPOINT TRIGGER 2: ATOMIC ISOLATED REACT AGENT ---
+        async function executeIsolatedAgent() {
+            const msg = document.getElementById('agent-input').value.trim();
+            if (!msg) return;
+
+            const container = document.getElementById('agent-response-container');
+            const target = document.getElementById('agent-output-target');
+            
+            container.classList.remove('hidden');
+            target.innerHTML = `<div class="flex items-center space-x-2 text-sm text-gray-400 font-mono"><span class="animate-spin">⚡</span><span>Bypassing graph workflow layers. Evaluating atomic agent tools...</span></div>`;
+
+            try {
+                const res = await fetch(`${API_HOST}/agent`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: msg,
+                        working_dir: document.getElementById('agent-wd').value || "."
+                    })
+                });
+
+                if (!res.ok) throw new Error(`Server execution encountered status code ${res.status}`);
+                const data = await res.json();
+
+                if (data.type === 'db_result') {
+                    renderDatabaseResult(data, target);
+                } else {
+                    parseTextOutputContent(data.content, target);
+                }
+            } catch (err) {
+                target.innerHTML = `<div class="text-rose-400 font-mono text-xs p-4 bg-rose-950/20 border border-rose-900 rounded-lg">Pipeline Exception: ${err.message}</div>`;
+            }
+        }
+
+        // --- ENDPOINT TRIGGER 3: HIERARCHICAL SEMANTIC RAG WEB ENGINE ---
+        async function executeSemanticResearch() {
+            const query = document.getElementById('research-input').value.trim();
+            if (!query) return;
+
+            const container = document.getElementById('research-response-container');
+            const summaryTarget = document.getElementById('research-summary-target');
+            const passagesTarget = document.getElementById('research-passages-target');
+
+            container.classList.remove('hidden');
+            summaryTarget.innerHTML = `<span class="animate-pulse font-mono text-xs text-indigo-400">Running Web Crawler Fetch &amp; Cosine Semantic Vector Ranking...</span>`;
+            passagesTarget.innerHTML = '';
+
+            try {
+                const res = await fetch(`${API_HOST}/research`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        search_results: parseInt(document.getElementById('research-results').value) || 10
+                    })
+                });
+
+                if (!res.ok) throw new Error(`Error ${res.status} executing extraction query.`);
+                const data = await res.json();
+
+                // Hydrate Extractive Box Text
+                summaryTarget.innerText = data.summary || "No extraction text could be compiled for this node segment.";
+
+                // Generate ranked components matching confidence arrays
+                if (data.passages && data.passages.length > 0) {
+                    data.passages.forEach((p, idx) => {
+                        const card = document.createElement('div');
+                        card.className = "bg-[#111827] border border-gray-800 rounded-xl p-4 space-y-2 hover:border-gray-700 transition-all";
+                        
+                        // Set confidence color-coding rules identically to dashboard constants
+                        let scoreColor = "text-rose-400";
+                        if (p.score > 0.7) scoreColor = "text-emerald-400";
+                        else if (p.score > 0.5) scoreColor = "text-amber-400";
+
+                        card.innerHTML = `
+                            <div class="flex flex-wrap items-center justify-between text-xs border-b border-gray-800 pb-2 gap-2">
+                                <div class="font-mono text-gray-400 flex items-center">
+                                    <span class="bg-gray-800 h-5 w-5 rounded-full inline-flex items-center justify-center text-[10px] font-bold text-indigo-400 mr-2">${idx + 1}</span>
+                                    Source: <a href="${p.url}" target="_blank" class="text-indigo-400 hover:underline font-medium ml-1 truncate max-w-md sm:max-w-xl">${p.url}</a>
+                                </div>
+                                <div class="font-mono font-bold ${scoreColor}">Vector Metric: ${p.score.toFixed(3)}</div>
+                            </div>
+                            <p class="text-sm text-gray-300 leading-relaxed pt-1 font-sans">${p.passage}</p>
+                        `;
+                        passagesTarget.appendChild(card);
+                    });
+                } else {
+                    passagesTarget.innerHTML = `<div class="text-xs text-gray-500 italic p-4 text-center">No ranked snippets matching semantic score indexes found.</div>`;
+                }
+
+            } catch (err) {
+                summaryTarget.innerHTML = `<span class="text-rose-400 font-mono text-xs">Execution Interrupted: ${err.message}</span>`;
+            }
+        }
+
+        // Keepalive validation check against live server runtime on initialization
+        async function runHealthCheck() {
+            const indicator = document.getElementById('system-status-indicator');
+            try {
+                const check = await fetch(`${API_HOST}/health`);
+                if (check.ok) {
+                    indicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse";
+                } else {
+                    indicator.className = "h-2.5 w-2.5 rounded-full bg-amber-500";
+                }
+            } catch {
+                indicator.className = "h-2.5 w-2.5 rounded-full bg-rose-500";
+            }
+        }
+        
+        // Execute loop bounds
+        runHealthCheck();
+        setInterval(runHealthCheck, 20000);
+    </script>
+</body>
+</html>
