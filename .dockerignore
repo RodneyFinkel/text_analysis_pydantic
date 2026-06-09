@@ -15,26 +15,10 @@ chroma_research_db/
 .coverage
 htmlcov/
 
-# Ignore git metadata and IDE configs
-.git
-.gitignore
-.idea/
-.vscode/
 
 # Ignore OS overhead
 .DS_Store
 
-
-# Ignore the heavy local virtual environment
-env/
-.venv/
-venv/
-
-# Ignore python cache files
-**/__pycache__/
-*.pyc
-*.pyo
-*.pyd
 
 # Ignore local source control and IDE settings
 .git/
