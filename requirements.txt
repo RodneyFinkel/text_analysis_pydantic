@@ -63,8 +63,7 @@ rich==13.7.1
 pillow==10.4.0
 
 
-langgraph-checkpoint==1.0.12
-langgraph-sdk==0.1.66
+
 
 
 
