@@ -9,11 +9,19 @@ langchain-core
 langchain-groq
 langchain-community
 
+
+# ML / Embeddings (CPU ONLY)
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+torch==2.2.2+cpu
+
+
 # Research & RAG
 sentence-transformers
 chromadb
 beautifulsoup4
 duckduckgo-search
+ddgs
 aiohttp
 
 # Database & Tools

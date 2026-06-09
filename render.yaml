@@ -3,7 +3,6 @@ version: 1
 services:
   # ===================== BACKEND =====================
   - type: web
-    env: python
     name: multi-agent-api
     runtime: docker
     dockerfilePath: ./Dockerfile
