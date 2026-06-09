@@ -1,3 +1,25 @@
-__pycache__/
+# Ignore local python virtual environments
+env/
+venv/
+.venv/
+
+# Ignore local database states (since we use a high-performance Named Volume)
+chroma_research_db/
+
+# Ignore python compilation artifacts and caches
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ignore git metadata and IDE configs
+.git
+.gitignore
+.idea/
+.vscode/
+
+# Ignore OS overhead
 .DS_Store
-/DS_Store
