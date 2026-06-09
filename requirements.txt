@@ -1,39 +1,61 @@
-# Core Framework & API
-fastapi
-uvicorn[standard]
-python-dotenv
+# =========================
+# CORE API STACK
+# =========================
+fastapi==0.111.0
+uvicorn[standard]==0.30.6
+python-dotenv==1.0.1
+python-multipart==0.0.9
 
-# LangChain / LangGraph Ecosystem
-langgraph
-langchain-core
-langchain-groq
-langchain-community
+# =========================
+# LANGCHAIN / LANGGRAPH (stable aligned set)
+# =========================
+langgraph==0.2.35
+langchain-core==0.2.43
+langchain-community==0.2.16
+langchain-groq==0.1.9
 
+# =========================
+# LLM / EMBEDDINGS STACK (CRITICAL STABILITY BLOCK)
+# =========================
+numpy<2
 
-# ML / Embeddings (CPU ONLY)
 --extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.2
 
-torch==2.2.2+cpu
+transformers==4.41.2
+sentence-transformers==3.0.1
+huggingface-hub==0.24.6
+tokenizers==0.19.1
 
+# =========================
+# VECTOR DB / RAG STORAGE
+# =========================
+chromadb==0.5.5
+pydantic==2.8.2
+pydantic-settings==2.4.0
 
-# Research & RAG
-sentence-transformers
-chromadb
-beautifulsoup4
-duckduckgo-search
-ddgs
-aiohttp
+# =========================
+# SEARCH / SCRAPING
+# =========================
+ddgs==9.14.4
+aiohttp==3.9.5
+beautifulsoup4==4.12.3
+lxml==5.2.2
+requests==2.32.3
 
-# Database & Tools
-sqlalchemy
-sqlglot
-pandas
-numpy
-pyarrow
+# =========================
+# DATABASE / DATA
+# =========================
+sqlalchemy==2.0.32
+sqlglot==25.20.2
+pandas==2.2.2
+pyarrow==16.1.0
 
-
-# Utils
-pydantic
-python-multipart
-pillow
-
+# =========================
+# UTILITIES
+# =========================
+tqdm==4.66.4
+tenacity==8.5.0
+orjson==3.10.7
+rich==13.7.1
+pillow==10.4.0
