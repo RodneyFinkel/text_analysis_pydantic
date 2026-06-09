@@ -23,3 +23,27 @@ htmlcov/
 
 # Ignore OS overhead
 .DS_Store
+
+
+# Ignore the heavy local virtual environment
+env/
+.venv/
+venv/
+
+# Ignore python cache files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local source control and IDE settings
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Ignore local databases, RAG storage, and logs
+*.log
+multi_agent_chroma_storage/
+chroma/
+data/

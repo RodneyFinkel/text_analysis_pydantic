@@ -174,6 +174,15 @@
     </footer>
 
     <script>
+
+        // Dynamic API Host for Render Deployment
+        const API_HOST = window.location.hostname.includes("onrender.com") 
+            ? "https://multi-agent-api.onrender.com" 
+            : "http://localhost:8000";
+
+            // Example usage:
+            // fetch(`${API_HOST}/chat`, ...)
+        
         // Lightweight Particles
         (function() {
             const canvas = document.getElementById('particlesCanvas');
