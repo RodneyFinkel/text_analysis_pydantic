@@ -9,10 +9,20 @@ services:
     env_file:
       - .env
     volumes:
-      - ./chroma_research_db:/app/chroma_research_db  # Persist ChromaDB data
+      # Use a high-performance Named Volume for ChromaDB to prevent SQLite disk locking on Mac
+      - chroma_data:/app/chroma_research_db  
+      # Bind mount the workspace for live code changes
       - .:/app
+      # Anonymous Volume Mask: Prevents your local host macOS 'env' folder from leaking into the container
+      - /app/env/
     restart: unless-stopped
     environment:
+      # This explicitly ensures the key passes through even if your terminal environment differs
       - GROQ_API_KEY=${GROQ_API_KEY}
-    # Optional: increase timeout for long research queries
+    # Adjusted flag: --timeout-keep-alive manages connection persistence, not application execution
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120
+
+volumes:
+  chroma_data:
+    name: multi_agent_chroma_storage
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120
