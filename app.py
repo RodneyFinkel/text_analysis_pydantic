@@ -62,8 +62,14 @@ def get_db_agent(working_dir: str=".") -> AIAgent:
     return AIAgent(api_key=api_key, working_dir=working_dir)
 
 
-# NEW FRONTEND
+# NEW LANDING PAGE
 @app.get("/")
+async def serve_landing_page():
+    return FileResponse("static/landing.html")
+
+
+# NEW FRONTEND
+@app.get("/dashboard")
 async def serve_dashboard():
     return FileResponse("static/index.html")
 
