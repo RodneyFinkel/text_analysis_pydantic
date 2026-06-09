@@ -1,5 +1,6 @@
 # Dockerfile for Multi-Agent FastAPI Service
-FROM python:3.11-slim
+# Use a specific slim variant to reduce known vulnerabilities
+FROM python:3.11-slim-bullseye
 
 # Set working directory
 WORKDIR /app
