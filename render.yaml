@@ -1,0 +1,30 @@
+version: 1
+
+services:
+  # ===================== BACKEND =====================
+  - type: web
+    name: multi-agent-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    timeout: 180
+    autoDeploy: true
+
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+
+  # ===================== FRONTEND =====================
+  - type: static
+    name: multi-agent-frontend
+    buildCommand: ""                    # No build needed
+    staticPublishPath: ./static         # Serves landing.html at root
+    autoDeploy: true
