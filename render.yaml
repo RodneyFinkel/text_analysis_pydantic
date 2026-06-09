@@ -23,8 +23,9 @@ services:
         value: 587
 
   # ===================== FRONTEND =====================
-  - type: static
+  - type: web
     name: multi-agent-frontend
+    runtime: static
     buildCommand: ""                    # No build needed
     staticPublishPath: ./static         # Serves landing.html at root
     autoDeploy: true
