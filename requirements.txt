@@ -10,6 +10,8 @@ python-multipart==0.0.9
 # LANGCHAIN / LANGGRAPH (stable aligned set)
 # =========================
 langgraph==0.2.35
+langgraph-checkpoint==1.0.12
+langgraph-sdk==0.1.66
 langchain-core==0.2.43
 langchain-community==0.2.16
 langchain-groq==0.1.9
@@ -59,3 +61,10 @@ tenacity==8.5.0
 orjson==3.10.7
 rich==13.7.1
 pillow==10.4.0
+
+
+langgraph-checkpoint==1.0.12
+langgraph-sdk==0.1.66
+
+
+
