@@ -23,8 +23,6 @@ pandas
 numpy
 pyarrow
 
-# Email
-smtpli==3.12.13  # built-in, but for completeness
 
 # Utils
 pydantic
