@@ -21,12 +21,35 @@
         }
     </script>
     <style>
+        body {
+            background-image:
+                linear-gradient(
+                    rgba(11, 15, 25, 0.75),
+                    rgba(11, 15, 25, 0.85)
+                ),
+                url('/static/images/s_background.jpg');
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            color: white;
+            min-height: 100vh;
+        }
+
         .glass {
+            background: rgba(5, 10, 20, 0.70);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.15);
+}
+        <!-- .glass {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-        }
+        } -->
         .glass-button {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(10px);
@@ -42,17 +65,11 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        #particlesCanvas {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.7;
-        }
+        
     </style>
 </head>
 <body class="bg-[#0b0f19] text-gray-100 min-h-screen overflow-x-hidden">
-    <canvas id="particlesCanvas"></canvas>
+    <!-- <canvas id="particlesCanvas"></canvas> -->
 
     <!-- Header -->
     <header class="glass fixed top-0 left-0 right-0 z-50 border-b border-white/10">
@@ -181,7 +198,7 @@
             // fetch(`${API_HOST}/chat`, ...)
         
         // Lightweight Particles
-        (function() {
+        <!-- (function() {
             const canvas = document.getElementById('particlesCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -229,7 +246,7 @@
                 requestAnimationFrame(loop);
             }
             loop();
-        })();
+        })(); -->
     </script>
 </body>
 </html>
