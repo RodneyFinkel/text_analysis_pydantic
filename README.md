@@ -18,7 +18,7 @@ streamlit run streamlit_app4.py
 
 Alternatively use this link for a live demo: https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
 
-
+uvicorn app:app --reload --port 8000
 
 #ReACT Agent for Filesystem and NL2SQL
 <img width="1072" height="1915" alt="Screenshot 2026-04-28 at 11 14 22" src="https://github.com/user-attachments/assets/c657de24-b4f0-4824-95ca-44769282e408" />

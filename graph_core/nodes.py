@@ -2,7 +2,7 @@
 import os
 from typing import Optional
 from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
-from graph_core.state import AgentState
+from graph_core.state import AgentState, DbQueryResult
 from langchain_agent4 import AIAgent
 from agent5_async import ShortResearchAgent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -38,28 +38,27 @@ def agent_node(state: AgentState) -> AgentState:
     result = agent.chat(state["messages"])
     
     # Import your state model to update state metrics
-    from graph_core.state import DbQueryResult
+    
     db_res_list = []
     content = ""
     
-    # 1. Parse your ReACT agent's custom dictionary structure
-    if isinstance(result, dict):
-        if result.get("type") == "db_result":
-            res = result.get("result")
-            if res:
-                db_res_list.append(DbQueryResult(
-                    sql=getattr(res, "sql", "Unknown SQL"),
-                    columns=getattr(res, "columns", []),
-                    rows=getattr(res, "rows", []),
-                    row_count=getattr(res, "row_count", 0),
-                    file_path=getattr(res, "file_path", None),
-                    error=getattr(res, "error", None)
-                ))
-            content = f"Database query complete. Results compiled into parquet asset: {getattr(res, 'file_path', 'N/A')}"
-        else:
-            content = result.get("content", str(result))
+    # 1. Parse the ReACT agent's custom dictionary structure 
+    # to inject into DbQueryResult state and then that is injected into the AgentState
+    if isinstance(result, dict) and result.get("type") == "db_result":
+        res = result.get("result")
+        if res:
+            db_res_list.append(DbQueryResult(
+                sql=getattr(res, "sql", "Unknown SQL"),
+                columns=getattr(res, "columns", []),
+                rows=getattr(res, "rows", []),
+                row_count=getattr(res, "row_count", 0),
+                file_path=getattr(res, "file_path", None),
+                error=getattr(res, "error", None)
+            ))
+        content = f"Database query complete. Results compiled into parquet asset: {getattr(res, 'row_count', 0)}"
     else:
-        content = str(result)
+        content = result.get("content", str(result))
+   
         
     # 2. Guard Fallback: If it executed successfully but didn't return type='db_result'
     # we still append a marker entry so len_db > 0, breaking any potential infinite loops.

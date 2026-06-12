@@ -60,18 +60,36 @@
             <div class="flex items-center gap-4">
                 <!-- GitHub Link - Dark friendly -->
                  
-                <a href="https://github.com/RodneyFinkel/text_analysis_pydantic" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center gap-2 text-white hover:text-indigo-400 transition-colors">
-                    <span class="text-2xl">🐙</span>
-                    <span class="font-medium">GitHub</span>
-                </a>
-                
-                <!-- Project Repo -->
-                <a href="https://aleph-portfolio-website.streamlit.app/" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center gap-2 text-white hover:text-indigo-400 transition-colors">
-                    <span class="text-xl">🔗</span>
-                    <span class="font-medium">Project-Website</span>
-                </a>
+                <a href="https://github.com/RodneyFinkel/text_analysis_pydantic"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-2 text-white hover:text-indigo-400 transition-colors">
+                        <img src="/static/images/github_transparent.png"
+                            alt="GitHub"
+                            class="w-7 h-7 object-contain">
+                        <span class="font-medium">GitHub Repo</span>
+                    </a>
+
+                    <a href="/docs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-2 text-white hover:text-indigo-400 transition-colors">
+                        <img src="/static/images/fastapi.svg"
+                            alt="Project Website"
+                            class="w-7 h-7 object-contain">
+                        <span class="font-medium">API Endpoints</span>
+                    </a>
+
+                    <a href="https://aleph-portfolio-website.streamlit.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-2 text-white hover:text-indigo-400 transition-colors">
+                        <img src="/static/images/aleph7.png"
+                            alt="Project Website"
+                            class="w-7 h-7 object-contain">
+                        <span class="font-medium">Projects Website</span>
+                    </a>
+                    
             </div>
 
             <h1 class="text-2xl font-bold text-white tracking-tight">
@@ -96,8 +114,8 @@
                 </h1>
 
                 <p class="text-xl text-gray-400 max-w-lg">
-                    A full-stack LangGraph system featuring async semantic RAG, safe ReAct agents, 
-                    NL2SQL with guardrails, and automated email delivery.
+                    A full-stack 🧠 LangGraph system featuring 🌐 async semantic RAG, 
+                    ⚙️ ReAct Agent with guardrailed NL2SQL & Filesystem tools, automated email delivery with query result artifacts.
                 </p>
 
                 <div class="flex flex-wrap gap-4">
@@ -115,18 +133,13 @@
                 <div class="pt-6">
                     <p class="text-xs uppercase tracking-widest text-gray-500 mb-3">Built With</p>
                     <div class="flex flex-wrap gap-6 text-2xl">
-                        <div title="LangGraph">🔀</div>
-                        <div title="FastAPI">⚡</div>
-                        <div title="Groq">🔥</div>
-                        <div title="ChromaDB">📊</div>
-                        <div title="Sentence Transformers">🔍</div>
-                        <div title="Docker + Render">🐳</div>
+                    
                     </div>
                 </div>
             </div>
 
             <!-- Right: Visual Preview -->
-            <div class="hidden lg:flex justify-center">
+         <div class="hidden lg:flex justify-center">
                 <div class="glass rounded-3xl p-8 shadow-2xl border border-white/10 max-w-md">
                     <div class="bg-[#111827] rounded-2xl p-6 space-y-6">
                         <div class="h-2 bg-indigo-500/30 rounded w-3/4"></div>
@@ -141,32 +154,13 @@
                     </div>
                 </div>
             </div>
-        </div>
+           
 
         <!-- Features Section -->
-        <div id="features" class="max-w-7xl mx-auto px-8 py-20">
-            <h2 class="text-4xl font-bold text-center mb-12">Powerful Capabilities</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="glass p-8 rounded-3xl">
-                    <div class="text-4xl mb-4">🌐</div>
-                    <h3 class="text-2xl font-semibold mb-3">Semantic RAG Researcher</h3>
-                    <p class="text-gray-400">Async web research with embeddings, ChromaDB persistence, and intelligent passage ranking.</p>
-                </div>
-                <div class="glass p-8 rounded-3xl">
-                    <div class="text-4xl mb-4">🛡️</div>
-                    <h3 class="text-2xl font-semibold mb-3">Safe ReAct Agent</h3>
-                    <p class="text-gray-400">NL2SQL with SQLGuardrail (sqlglot AST), filesystem tools, and Parquet exports.</p>
-                </div>
-                <div class="glass p-8 rounded-3xl">
-                    <div class="text-4xl mb-4">📧</div>
-                    <h3 class="text-2xl font-semibold mb-3">Smart Email Pipeline</h3>
-                    <p class="text-gray-400">Automatic rich HTML emails with DB results, research summaries, or blog drafts.</p>
-                </div>
-            </div>
-        </div>
+       
     </main>
 
-    <footer class="glass py-8 text-center text-sm text-gray-500">
+    <footer class="glass py-53 text-center text-sm text-gray-500">
         <p>© 2026 Rodney Finkel • Multi-Agent System Portfolio Project</p>
         <p class="mt-2">
             <a href="/dashboard" class="hover:text-white">Launch Demo →</a>

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
@@ -10,9 +11,13 @@ from agent5_async import ShortResearchAgent
 from langchain_agent4 import AIAgent
 import uuid
 
+
 ## FRONTEND
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+
+
+
 
 load_dotenv()
 
@@ -31,6 +36,16 @@ app = FastAPI(
         "filter": True,
         "deepLinking": True,
     }
+)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For production, replace "*" with your specific Render static frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],  # This explicitly allows POST, OPTIONS, GET, etc.
+    allow_headers=["*"],
 )
 
 class ChatRequest(BaseModel):
@@ -102,7 +117,7 @@ async def chat_endpoint(req: ChatRequest):
     else:
         print(f"💾 Notice: Re-entering existing state session container: {active_thread}")
         
-    config = {"configurable": {"thread_id": req.thread_id }}
+    config = {"configurable": {"thread_id": active_thread }}
     inputs = {
                     "messages": [HumanMessage(content=req.message)],
                     "db_results": [],
