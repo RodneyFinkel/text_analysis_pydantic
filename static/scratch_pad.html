@@ -1,0 +1,195 @@
+// ...existing code...
+    <style>
+        
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #6366f1;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .bg-animated {
+        background: linear-gradient(-45deg, #ee7752, #ffd257, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 25s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Particles canvas (reactive pixels) */
+        #particlesCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none; /* allow UI interactions to pass through */
+            mix-blend-mode: screen;
+        }
+    </style>
+
+    <body class="bg-animated min-h-screen flex flex-col font-sans antialiased">  
+    <body class="bg-animated min-h-screen flex flex-col font-sans antialiased">  
+    <canvas id="particlesCanvas"></canvas>
+
+    <script>
+        // Particles canvas: reactive pixels that move & reproduce on input
+        (function(){
+            const canvas = document.getElementById('particlesCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let DPR = Math.min(window.devicePixelRatio || 1, 2);
+            function resize(){ 
+                DPR = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = Math.floor(window.innerWidth * DPR);
+                canvas.height = Math.floor(window.innerHeight * DPR);
+                canvas.style.width = window.innerWidth + 'px';
+                canvas.style.height = window.innerHeight + 'px';
+                ctx.setTransform(DPR,0,0,DPR,0,0);
+            }
+            window.addEventListener('resize', resize, { passive: true });
+            resize();
+
+            const particles = [];
+            const MAX = 8000;
+
+            class Particle {
+                constructor(x,y, vx, vy, size, life, hue){
+                    this.x = x; this.y = y;
+                    this.vx = vx; this.vy = vy;
+                    this.size = size;
+                    this.life = life; // remaining frames
+                    this.age = 0;
+                    this.hue = hue;
+                }
+               update(){
+                    // simple physics + friction
+                    this.vx *= 0.98;
+                    this.vy *= 0.98;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.age++;
+                    this.life--;
+                    // reproduction (split occasionally)
+                    if (this.age % 36 === 0 && particles.length < MAX) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = (Math.random() * 1.2) + 0.3;
+                        particles.push(new Particle(
+                            this.x + (Math.random()-0.5)*6,
+                            this.y + (Math.random()-0.5)*6,
+                            Math.cos(angle)*speed,
+                            Math.sin(angle)*speed,
+                            Math.max(1, this.size*0.9),
+                            Math.floor(Math.random()*80)+40,
+                            (this.hue + (Math.random()*20-10) + 360) % 360
+                        ));
+                    }
+                }
+                draw(ctx){
+                    ctx.fillStyle = `hsla(${this.hue},80%,60%,${Math.max(0, this.life/120)})`;
+                    // draw small pixel block
+                    ctx.fillRect(this.x, this.y, this.size, this.size);
+                }
+            }
+
+            function spawn(x,y,count=8,strength=2){
+                for (let i=0;i<count && particles.length<MAX;i++){
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random()*strength + 0.6;
+                    const size = Math.random()*2 + 1;
+                    const life = Math.floor(Math.random()*120) + 60;
+                    const hue = 180 + Math.random()*120; // teal -> cyan -> magenta
+                    particles.push(new Particle(x + (Math.random()-0.5)*6, y + (Math.random()-0.5)*6, Math.cos(angle)*speed, Math.sin(angle)*speed, size, life, hue));
+                }
+            }
+
+            // initial soft scatter
+            for (let i=0;i<120;i++){
+                spawn(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 1, 0.6);
+            }
+
+            let last = performance.now();
+            function loop(now){
+                const dt = now - last;
+                last = now;
+                // translucent fill for motion trails
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = 'rgba(0,0,0,0)'; // don't darken background
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+
+                // update & draw
+                for (let i = particles.length -1; i>=0; i--){
+                    const p = particles[i];
+                    p.update();
+                    p.draw(ctx);
+                    if (p.life <= 0 || p.x < -50 || p.x > window.innerWidth + 50 || p.y < -50 || p.y > window.innerHeight + 50) {
+                        particles.splice(i,1);
+                    }
+                }
+
+                // small ambient spawn to keep it lively
+                if (Math.random() < 0.02 && particles.length < MAX) {
+                    spawn(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 1, 0.5);
+                }
+
+                requestAnimationFrame(loop);
+            }
+            requestAnimationFrame(loop);
+
+            // input handling: mouse & touch
+            let lastMove = 0;
+            function onPointer(x,y, velocity){
+                // spawn based on movement velocity
+                const count = Math.min(24, Math.max(4, Math.floor(velocity*8)));
+                spawn(x, y, count, Math.min(3.5, 0.8 + velocity*3));
+            }
+
+            let prev = null;
+            window.addEventListener('mousemove', (e)=>{
+                const now = performance.now();
+                if (prev) {
+                    const dx = e.clientX - prev.x;
+                    const dy = e.clientY - prev.y;
+                    const dist = Math.hypot(dx,dy);
+                    const dt = Math.max(1, now - prev.t);
+                    const vel = dist / dt;
+                    onPointer(e.clientX, e.clientY, vel);
+                } else {
+                    onPointer(e.clientX, e.clientY, 0.4);
+                }
+                prev = { x: e.clientX, y: e.clientY, t: now };
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (ev)=>{
+                const t = ev.touches[0];
+                if (!t) return;
+                const now = performance.now();
+                if (prev) {
+                    const dx = t.clientX - prev.x;
+                    const dy = t.clientY - prev.y;
+                    const dist = Math.hypot(dx,dy);
+                    const dt = Math.max(1, now - prev.t);
+                    const vel = dist / dt;
+                    onPointer(t.clientX, t.clientY, vel);
+                } else {
+                    onPointer(t.clientX, t.clientY, 0.4);
+                }
+                prev = { x: t.clientX, y: t.clientY, t: now };
+            }, { passive: true });
+
+            // reset prev on end
+            window.addEventListener('mouseup', ()=> prev = null, { passive: true });
+            window.addEventListener('touchend', ()=> prev = null, { passive: true });
+        })();
+ 
+    </script>
+</body>
+</html>
