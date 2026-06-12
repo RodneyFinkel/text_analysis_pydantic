@@ -10,10 +10,12 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-/DS_Store
+DS_Store
 .DS_Store
 .agent.log
 agent.log
 /agent.log
 test_env
 .test_env
+.DS_Store
+
