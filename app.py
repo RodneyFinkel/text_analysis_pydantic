@@ -80,7 +80,7 @@ def get_db_agent(working_dir: str=".") -> AIAgent:
 # NEW LANDING PAGE
 @app.get("/")
 async def serve_landing_page():
-    return FileResponse("static/landing.html")
+    return FileResponse("static/landing_exp.html")
 
 
 # NEW FRONTEND
