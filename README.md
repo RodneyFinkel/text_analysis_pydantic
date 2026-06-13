@@ -1,4 +1,8 @@
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
+
+
+<img width="1860" height="823" alt="Screenshot 2026-06-13 at 9 38 22" src="https://github.com/user-attachments/assets/9e7b5ca9-c6cf-4808-8510-93c5be107def" />
+
 GROQ_API_KEY is needed inside a .env file
 Clone the repository
 
