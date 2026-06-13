@@ -144,12 +144,7 @@
         </div>
     </main>
 
-    <footer class="glass py-12 text-center text-sm text-gray-500">
-        <p>© 2026 Rodney Finkel • Multi-Agent System Portfolio Project</p>
-        <p class="mt-2">
-            <a href="/dashboard" class="hover:text-white">Launch Demo →</a>
-        </p>
-    </footer>
+    
 
     <script>
         // Dynamic API Host for Render Deployment
@@ -195,6 +190,86 @@
             </div>
         </div>
     </div>
+
+        <div class="max-w-6xl mx-auto mt-16 px-4 pb-16">
+        <div class="text-center mb-10">
+            <h1 class="text-4x2 font-bold text-indigo-400 tracking-wide uppercase text-sm font-mono">System Architecture Blueprint</h1>
+            <p class="text-gray-400 text-sm mt-1">Stateful Multi-Agent Orchestration via LangGraph &amp; FastAPI</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center bg-black/40 border border-gray-800/60 p-8 rounded-2xl backdrop-blur-md">
+            
+            <div class="flex flex-col items-center justify-center p-6 bg-gray-900/40 border border-gray-800 rounded-xl relative">
+                <div class="absolute -top-3 left-4 bg-indigo-600 text-[10px] font-mono tracking-widest px-2 py-0.5 rounded text-white font-bold uppercase">State Init</div>
+                <div class="h-12 w-12 rounded-full bg-indigo-500/10 border border-indigo-500/40 flex items-center justify-center text-xl mb-3 shadow-lg shadow-indigo-500/10">👤</div>
+                <h3 class="text-sm font-semibold text-gray-200 font-mono">User / Client Request</h3>
+                <p class="text-xs text-gray-400 text-center mt-2 leading-relaxed">HTTP Payload delivers text, targets, and unique thread IDs to the FastAPI server instance layer.</p>
+                
+                <div class="hidden lg:block absolute -right-5 top-1/2 transform -translate-y-1/2 z-10 text-indigo-500 font-bold text-lg">➔</div>
+                <div class="block lg:hidden mt-4 text-indigo-500 font-bold text-lg">⬇</div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center p-6 bg-indigo-950/20 border border-indigo-500/30 rounded-xl relative shadow-xl shadow-indigo-950/40">
+                <div class="absolute -top-3 left-4 bg-emerald-600 text-[10px] font-mono tracking-widest px-2 py-0.5 rounded text-white font-bold uppercase animate-pulse">Core Router</div>
+                <div class="h-14 w-14 rounded-full bg-indigo-500/20 border-2 border-indigo-400 flex items-center justify-center text-2xl mb-3 animate-pulse">🧠</div>
+                <h3 class="text-base font-bold text-indigo-300 font-mono">Supervisor Node</h3>
+                <p class="text-xs text-gray-300 text-center mt-2 leading-relaxed font-sans">
+                    Evaluates message arrays and state history. Programmatically selects the next node loop or outputs a <span class="text-rose-400 font-mono font-semibold">FINISH</span> token execution signal.
+                </p>
+                
+                <div class="hidden lg:block absolute -right-5 top-1/2 transform -translate-y-1/2 z-10 text-emerald-500 font-bold text-lg">➔</div>
+                <div class="block lg:hidden mt-4 text-emerald-500 font-bold text-lg">⬇</div>
+            </div>
+
+            <div class="space-y-4">
+                
+                <div class="flex items-start p-3 bg-gray-950/60 border border-gray-800 rounded-lg hover:border-gray-700 transition-all group">
+                    <div class="text-sm p-2 bg-gray-900 border border-gray-800 rounded mr-3 group-hover:text-amber-400">🗄️</div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200 font-mono">db_agent (ReAct Loop)</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Executes protected NL2SQL string injection rules and file system reads.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-3 bg-gray-950/60 border border-gray-800 rounded-lg hover:border-gray-700 transition-all group">
+                    <div class="text-sm p-2 bg-gray-900 border border-gray-800 rounded mr-3 group-hover:text-cyan-400">🌐</div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200 font-mono">researcher_agent</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Triggers web scrapers and filters paragraphs through ChromaDB vector cosine matches.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-3 bg-gray-950/60 border border-gray-800 rounded-lg hover:border-gray-700 transition-all group">
+                    <div class="text-sm p-2 bg-gray-900 border border-gray-800 rounded mr-3 group-hover:text-purple-400">📝</div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200 font-mono">writer_agent</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Consolidates vector context streams and text analysis models into comprehensive briefs.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-3 bg-gray-950/60 border border-gray-800 rounded-lg hover:border-gray-700 transition-all group">
+                    <div class="text-sm p-2 bg-gray-900 border border-gray-800 rounded mr-3 group-hover:text-emerald-400">✉️</div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200 font-mono">email_agent</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Offloads SMTP payloads to parallel worker threads for raw asset transmission.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-center space-x-2 text-[11px] font-mono text-gray-500">
+            <span class="inline-block w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+            <span>Note: All working nodes execute concurrently and append results back to the central thread graph state loop automatically.</span>
+        </div>
+    </div>
+
+    <footer class="glass py-3 text-center text-sm text-gray-500">
+        <p>© 2026 Rodney Finkel • Multi-Agent System Portfolio Project</p>
+        <p class="mt-2">
+            <a href="/dashboard" class="hover:text-white">Launch Demo →</a>
+        </p>
+    </footer>
 
     <button onclick="openVoiceModal()" class="fixed bottom-8 right-8 z-[90] w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white/20 bg-transparent p-1">
         <img src="/static/images/aleph7.png" alt="Voice Agent" class="w-16 h-16 object-contain filter brightness-0 saturate-0 invert-[0.75] hue-rotate-[210deg] opacity-80 hover:opacity-100 transition-all">
