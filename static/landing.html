@@ -197,56 +197,122 @@
             // Example usage:
             // fetch(`${API_HOST}/chat`, ...)
         
-        // Lightweight Particles
-        <!-- (function() {
-            const canvas = document.getElementById('particlesCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let w, h;
+        
 
-            function resize() {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
 
-            const particles = [];
-            class Particle {
-                constructor() { this.reset(); }
-                reset() {
-                    this.x = Math.random() * w;
-                    this.y = Math.random() * h;
-                    this.vx = (Math.random() - 0.5) * 0.8;
-                    this.vy = (Math.random() - 0.5) * 0.8;
-                    this.size = Math.random() * 2.2 + 0.8;
-                    this.life = Math.random() * 300 + 150;
-                }
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    this.life--;
-                    if (this.life <= 0 || this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
-                }
-                draw() {
-                    ctx.fillStyle = `rgba(165, 180, 252, ${this.life / 400})`;
-                    ctx.fillRect(this.x, this.y, this.size, this.size);
-                }
-            }
-
-            for (let i = 0; i < 800; i++) particles.push(new Particle());
-
-            function loop() {
-                ctx.fillStyle = 'rgba(11, 15, 25, 0.12)';
-                ctx.fillRect(0, 0, w, h);
-                for (let p of particles) {
-                    p.update();
-                    p.draw();
-                }
-                requestAnimationFrame(loop);
-            }
-            loop();
-        })(); -->
+    
     </script>
+
+    <!-- Voice Agent Modal - Deepgram Design System -->
+        <div id="voice-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[100]">
+        <div class="dg-card dg-card--spacious max-w-xl w-full mx-4 max-h-[92vh] overflow-hidden" style="background: rgba(11,11,18,0.95); border-color: rgba(255,255,255,0.08);">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-5">
+            <div class="flex items-center gap-4">
+                <div class="w-11 h-11 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"></div>
+                <div>
+                <h3 class="dg-card-heading text-2xl">Voice Agent</h3>
+                <p class="text-blue-400 text-sm">Deepgram Flux • Groq • Real-time</p>
+                </div>
+            </div>
+            <button onclick="closeVoiceModal()" 
+                    class="btn btn--icon-only text-3xl text-white/70 hover:text-white">×</button>
+            </div>
+
+            <!-- Voice Interface -->
+            <div class="pt-6 space-y-8">
+            
+            <!-- Status -->
+            <div class="text-center">
+                <div id="voice-status" class="inline-flex items-center gap-3 bg-white/10 px-6 py-3 rounded-2xl">
+                <span id="status-dot" class="w-4 h-4 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span id="status-text" class="font-medium">Ready to speak</span>
+                </div>
+            </div>
+
+            <!-- Main Control Button -->
+            <div class="flex justify-center">
+                <button onclick="toggleConversation()" id="voice-toggle-btn"
+                        class="btn btn--primary btn--large flex items-center gap-4">
+                <span id="btn-icon" class="text-2xl">🎙️</span>
+                <span id="btn-text">Start Conversation</span>
+                </button>
+            </div>
+
+            <!-- Live Transcript -->
+            <div id="live-transcript" 
+                class="dg-code-block dg-code-block--compact text-center text-base italic min-h-[110px] flex items-center justify-center border border-white/10">
+                Click "Start Conversation" and speak naturally...
+            </div>
+
+            <!-- Conversation Log -->
+            <div id="conversation-log" 
+                class="dg-code-block max-h-56 overflow-y-auto text-sm space-y-3">
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Floating Aleph Button -->
+        <button onclick="openVoiceModal()" 
+                class="fixed bottom-8 right-8 z-[90] w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white/20 bg-transparent p-1">
+        <img src="/static/images/aleph7.png" 
+            alt="Voice Agent" 
+            class="w-16 h-16 object-contain filter brightness-0 saturate-0 invert-[0.75] hue-rotate-[210deg] opacity-80 hover:opacity-100 transition-all">
+        </button>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+        <script>
+        let socket = null;
+        let isActive = false;
+
+        function openVoiceModal() {
+        document.getElementById('voice-modal').classList.remove('hidden');
+        document.getElementById('voice-modal').classList.add('flex');
+        initVoiceSocket();
+        }
+
+        function closeVoiceModal() {
+        document.getElementById('voice-modal').classList.add('hidden');
+        document.getElementById('voice-modal').classList.remove('flex');
+        if (socket) socket.disconnect();
+        }
+
+        function initVoiceSocket() {
+        if (socket) return;
+        socket = io({ path: '/socket.io' });
+        
+        socket.on('conversation_started', () => {
+            document.getElementById('status-text').textContent = 'Listening...';
+        });
+        
+        socket.on('conversation_stopped', () => {
+            document.getElementById('status-text').textContent = 'Ready to speak';
+        });
+        }
+
+        function toggleConversation() {
+        isActive = !isActive;
+        const btn = document.getElementById('voice-toggle-btn');
+        const text = document.getElementById('btn-text');
+        const icon = document.getElementById('btn-icon');
+
+        if (isActive) {
+            text.textContent = "Stop Conversation";
+            icon.textContent = "⏹️";
+            document.getElementById('live-transcript').textContent = "Listening... Speak now";
+            if (socket) socket.emit('start_conversation');
+        } else {
+            text.textContent = "Start Conversation";
+            icon.textContent = "🎙️";
+            document.getElementById('live-transcript').textContent = "Conversation ended";
+            if (socket) socket.emit('stop_conversation');
+        }
+        }
+        </script>
+
+    
+   
 </body>
 </html>
