@@ -88,9 +88,9 @@ async def serve_landing_page():
 async def serve_dashboard():
     return FileResponse("static/index.html")
 
-    
+
 @app.get("/health")
-def health():
+def health_check():
     return {"status": "healthy"}
 
 # Research endpoint using ShortResearchAgent from agent5_async.py
