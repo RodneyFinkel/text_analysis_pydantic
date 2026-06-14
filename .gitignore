@@ -18,4 +18,4 @@ agent.log
 test_env
 .test_env
 .DS_Store
-
+logs.txt
