@@ -8,6 +8,8 @@ Deployed Live at https://multi-agent-platform-alpha.onrender.com
 
 <img width="1680" height="1050" alt="Screenshot 2026-06-12 at 20 32 40" src="https://github.com/user-attachments/assets/7cac24b1-bd62-44b3-a21f-ce4bb978930a" />
 
+<img width="1191" height="910" alt="Screenshot 2026-06-14 at 7 13 48" src="https://github.com/user-attachments/assets/7dac1baf-48e8-4921-b503-5b658ba9d851" />
+
 
 GROQ_API_KEY is needed inside a .env file
 Clone the repository
