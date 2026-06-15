@@ -42,8 +42,10 @@ class QueryAnyDatabaseSchema(BaseModel):
     question: str = Field(description="Natural language question about this database.")
     
 class ListAvailableDatabasesSchema(BaseModel):
-    """No input parameters needed"""
-    pass
+    dummy: Optional[str] = Field(
+        default="trigger", 
+        description="Just pass 'trigger' to execute."
+    )
 
 # Structured DB Result Format 
 class DbQueryResult(BaseModel):
@@ -176,6 +178,7 @@ class AIAgent:
 
             The file_path must include any discovered subdirectories.
         """
+        
         full_path = os.path.join(self.working_dir, file_path)
         try:
             with open(full_path, "r", encoding="utf-8") as f:
@@ -183,14 +186,18 @@ class AIAgent:
         except Exception as e:
             return f"Error reading file: {str(e)}"
 
+
+
     def list_files(self, path: str = ".") -> str:
         full_path = os.path.join(self.working_dir, path)
         try:
             return "\n".join(sorted(os.listdir(full_path)))
         except Exception as e:
             return f"Error listing files: {str(e)}"
+ 
+ 
         
-    def list_available_databases(self) -> str:
+    def list_available_databases(self, dummy: str = None) -> str:
         """List only .db files in the working directory."""
         try:
             db_files = [
@@ -206,6 +213,7 @@ class AIAgent:
             return result.strip()
         except Exception as e:
             return f"Error listing databases: {str(e)}"
+
 
     def suggest_interesting_queries(self, focus: str = "general") -> str:
         try:
@@ -224,6 +232,7 @@ class AIAgent:
         except Exception as e:
             return f"Could not generate suggestions: {str(e)}"
         
+
 
     def _execute_db_query(self, db: SQLDatabase, question: str) -> Dict[str, Any]:
         try:
@@ -307,10 +316,13 @@ class AIAgent:
                 "file_path": None,
                 "error": str(e)
             }
+            
+            
     # MIGHT BE CREATING TOOL BINDING ISSUES
     def query_database(self, question: str) -> Dict[str, Any]:
         """Query the default student_grades.db — returns structured result for frontend rendering."""
         return self._execute_db_query(self.default_db, question)
+
 
     def query_any_database(self, db_filename: str, question: str) -> Dict[str, Any]:
         """Query any .db file in the working directory — returns structured result."""
@@ -330,6 +342,7 @@ class AIAgent:
                 "error": f"Failed to open database {db_filename}: {str(e)}"
             }
     
+    
     # NEW        
     def get_database_schema(self, db_filename: str) -> str:
         """Safely retrieve table schemas (CREATE TABLE statements) for a database file."""
@@ -345,6 +358,7 @@ class AIAgent:
             return schema_info
         except Exception as e:
             return f"Error reading schema metadata for '{db_filename}': {str(e)}"
+
 
     # Main chat method React loop
     def chat(self, user_input: Union[str, List[BaseMessage]]) -> Dict[str, Any]:
@@ -426,6 +440,8 @@ class AIAgent:
 
         # Fallback (should not reach here)
         return {"type": "text", "content": "Finished processing."}
+   
+   
     
 # Static Utility Class (holds no state of its own)  
 # @classmethod -> no need for guard = SQLGuardrail() instead use SQLGuardrail.validate_query(...)
@@ -450,6 +466,7 @@ class SQLGuardrail:
                 cleaned = cleaned[1:-1].strip()
         
         return cleaned.strip()         
+
     
     @classmethod
     def validate_and_optimize(cls, sql_str: str) -> dict:
