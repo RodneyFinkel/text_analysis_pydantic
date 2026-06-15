@@ -35,7 +35,16 @@ def agent_node(state: AgentState) -> AgentState:
     """Main LangGraph node wrapping the original ReACT agent"""
     print("Initializing ReACT Agent")
     agent = get_agent(state["working_dir"])
-    result = agent.chat(state["messages"])
+    
+    # Patch for malformed tool function call
+    # Filter the history: Only pass HumanMessages and relevant AIMessages
+    # Drop previous massive DB readouts or unrelated research lo
+    filtered_messages = [
+        msg for msg in state["messages"]
+        if isinstance(msg, HumanMessage) or (isinstance(msg, AIMessage) and "Database" in str(msg.content))
+    ]
+    
+    result = agent.chat(filtered_messages)
     
     # Import your state model to update state metrics
     

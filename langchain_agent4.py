@@ -26,7 +26,7 @@ load_dotenv()
 # Tool Input Schemas
 
 class ReadFileSchema(BaseModel):
-    file_path: str = Field(description="The path to the file to read.")
+    file_path: str = Field(description="The relative path to the file to read, including any folder names discovered in previous list_files calls (e.g., 'graph_core/graph.py'). Do not just use the filename if it is inside a subdirectory.")
 
 class ListFilesSchema(BaseModel):
     path: str = Field(description="The directory path to list. Use '.' for the current working directory.")
@@ -120,7 +120,7 @@ class AIAgent:
             StructuredTool.from_function(
                 func=self.read_file,
                 name="read_file",
-                description="Read the contents of a file at the given path.",
+                description="Read the contents of a file. Use this tool if the user asks what a specific file is, what it does, or asks to read it.",
                 args_schema=ReadFileSchema,
             ),
             StructuredTool.from_function(
@@ -166,6 +166,16 @@ class AIAgent:
     # Tool implementations
 
     def read_file(self, file_path: str) -> str:
+        """
+            Read the contents of a file.
+
+            Use when:
+            - The user asks to read a file.
+            - The user asks what a file does.
+            - The user asks for code inspection.
+
+            The file_path must include any discovered subdirectories.
+        """
         full_path = os.path.join(self.working_dir, file_path)
         try:
             with open(full_path, "r", encoding="utf-8") as f:
