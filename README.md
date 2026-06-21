@@ -1,5 +1,7 @@
 Deployed Live at https://multi-agent-platform-alpha.onrender.com
 
+## System Architecture & Data Pipeline Matrix
+
 <img width="1669" height="2527" alt="Mutli Agent Supervisor" src="https://github.com/user-attachments/assets/794baadc-83e5-427a-8df7-43e6b3842002" />
 
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
@@ -62,7 +64,7 @@ It is specifically tuned to excel at JSON mode and Function Calling
 
 Using Pydantic replaces traditional prompt-engineering for output formatting by providing a schema contract that forces the LLM to return valid, structured data. This was chosen to eliminate unpredictable text chatter and ensure type-safe validation. Moving logic from raw strings to Python objects makes the app becomes more robust. 
 
-## System Architecture & Data Pipeline Matrix
+
 
 
 
