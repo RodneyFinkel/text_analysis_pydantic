@@ -1,5 +1,7 @@
 Deployed Live at https://multi-agent-platform-alpha.onrender.com
 
+<img width="1669" height="2527" alt="Mutli Agent Supervisor" src="https://github.com/user-attachments/assets/794baadc-83e5-427a-8df7-43e6b3842002" />
+
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
 
 
