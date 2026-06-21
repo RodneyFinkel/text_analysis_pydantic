@@ -7,7 +7,6 @@ Deployed Live at https://multi-agent-platform-alpha.onrender.com
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
 
 
-<img width="1853" height="821" alt="Screenshot 2026-06-13 at 10 50 58" src="https://github.com/user-attachments/assets/b251cded-6261-4352-900d-08c1540c44d9" />
 
 
 <img width="1680" height="1050" alt="Screenshot 2026-06-12 at 20 32 40" src="https://github.com/user-attachments/assets/7cac24b1-bd62-44b3-a21f-ce4bb978930a" />
