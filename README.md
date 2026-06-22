@@ -1,4 +1,7 @@
 Deployed Live at https://multi-agent-platform-alpha.onrender.com
+Or locally after cloning and supplying Groq API key
+uvicorn app:app --reload --port 8000
+Fully dockerized and continuosly updated
 
 ## System Architecture & Data Pipeline Matrix
 
