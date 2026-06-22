@@ -6,8 +6,6 @@ uvicorn app:app --reload --port 8000
 
 Fully dockerized and continuosly updated
 
-Standalone NL2SQL and FileSystem Agent + Semantic Web Searcher on strealit with tool binding demos:
-https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
 
 ## System Architecture & Data Pipeline Matrix
 
