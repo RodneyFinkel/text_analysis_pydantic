@@ -20,7 +20,7 @@ class AgentState(TypedDict):
     topic: Optional[str] = None
     research_data: Annotated[List[str], "List of research findings"] = [] # A list of findings
     blog_post: Optional[str]  = None # The final output
-    
+   
     # --- ADDED FOR EMAIL ROUTING & TARGETING ---
     recipient_email: Optional[str] = None
     recipient_name: Optional[str] = None

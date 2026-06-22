@@ -2,7 +2,7 @@ import os
 import pytest
 from unittest.mock import MagicMock
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain_agent4 import AIAgent
+from langchain_agent5 import AIAgent
 
 @pytest.fixture
 def isloated_agent(tmp_path):

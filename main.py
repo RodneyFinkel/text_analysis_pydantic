@@ -1,9 +1,10 @@
 import os 
+import asyncio
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from graph_core.graph import graph
 
-def main():
+async def main():
     working_dir = "."
     config = {"configurable": {"thread_id": "default"}}
     
@@ -33,7 +34,7 @@ def main():
             }
             
             # Run the graph
-            result = graph.invoke(inputs, config)
+            result = await graph.ainvoke(inputs, config)
             
             # Extract response
             last_message = result["messages"][-1]
@@ -48,6 +49,6 @@ def main():
         
         
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
         
     

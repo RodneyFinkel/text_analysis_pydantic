@@ -15,6 +15,7 @@ from sqlglot.errors import ParseError
 from langchain_core.tools import StructuredTool
 import re
 from utils.prompt_loader import load_prompt
+from utils.llm_utils import get_resilient_llm
 import pandas as pd
 import uuid
 import pyarrow as pa
@@ -64,11 +65,16 @@ class GetDatabaseSchemaSchema(BaseModel):
 
 class AIAgent:
     def __init__(self, api_key: str, working_dir: str = "."):
-        self.llm = ChatGroq(
-            groq_api_key=api_key,
-            model_name="llama-3.3-70b-versatile",
-            temperature=0
-        )
+        # self.llm = ChatGroq(
+        #             groq_api_key=api_key,
+        #             model_name="llama-3.3-70b-versatile",
+        #             temperature=0
+        #         )
+        
+        self.primary_llm = get_resilient_llm(model_name="llama-3.3-70b-versatile", temperature=0)
+        #self.fallback_llm = get_resilient_llm(model_name="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0)
+        
+        
         self.working_dir = os.path.abspath(working_dir)
         self.db_path = os.path.join(self.working_dir, "student_grades.db")
 
@@ -81,8 +87,13 @@ class AIAgent:
         self._setup_tools2()
         # Bind the tools
         #self.llm_with_tools = self.llm.bind_tools(self.langchain_tools)
-        self.llm_with_tools = self.llm.bind_tools(self.tools)
-        print("Tool bindings done...ReAct agent 4 initialized")
+        self.primary_with_tools = self.primary_llm.bind_tools(self.tools)
+        #self.fallback_with_tools = self.fallback_llm.bind_tools(self.tools)
+        
+        print("All Pre-Tool bindings done...configuring fallback inference layer")
+        
+        
+        print("Tool bindings done...ReAct agent 5 initialized")
 
     def _ensure_database(self):
         if not os.path.exists(self.db_path):
@@ -245,7 +256,7 @@ class AIAgent:
             Question:
             {question}
             """)
-            chain = prompt | self.llm | StrOutputParser()
+            chain = prompt | self.primary_llm | StrOutputParser()
 
             raw_sql = chain.invoke({
                 "schema": schema,
@@ -358,6 +369,9 @@ class AIAgent:
             return f"Error reading schema metadata for '{db_filename}': {str(e)}"
 
 
+   
+    
+
     # Main chat method React loop
     def chat(self, user_input: Union[str, List[BaseMessage]]) -> Dict[str, Any]:
         """
@@ -367,7 +381,6 @@ class AIAgent:
         """
         
         self.messages = self.system_prompt.copy()
-        
         if isinstance(user_input, str):
             # Terminal/Standalone mode
             self.messages.append(HumanMessage(content=user_input))
@@ -377,9 +390,36 @@ class AIAgent:
         # self.messages.append(HumanMessage(content=user_input))
 
         while True:
-            response: AIMessage = self.llm_with_tools.invoke(self.messages)
+            # Explicit fallback interceptor
+            try:
+                response: AIMessage = self.primary_with_tools.invoke(self.messages)
+        
+            except Exception as e:
+                error_str = str(e).lower()
+                if "429" in error_str or "rate limit" in error_str or "503" in error_str:
+                    print(f"⚠️ Primary model exhausted. Falling back to meta-llama/llama-4-scout-17b-16e-instruct...")
+                    try:
+                        response: AIMessage = self.primary_with_tools.invoke(self.messages)
+                    except Exception as fallback_e:
+                        
+                        # --- THE DEGRADED SYNTHESIS RESCUE BLOCK ---
+                        # If the fallback throws a 400 tool error AND the last message was a ToolMessage,
+                        # it means the model is just trying to output text/code but tripped the strict Groq parser.
+                        if "400" in str(fallback_e) and len(self.messages) > 0 and isinstance(self.messages[-1], ToolMessage):
+                            print("🛡️ Fallback tripped the tool parser during synthesis. Unbinding tools and retrying pure text...")
+                            unbound_llm = self.fallback_llm.bind(tools=[]) # Properly unbind
+                            # Invoke the base LLM *without* the bound tools so Groq's parser ignores it
+                            response: AIMessage = unbound_llm.invoke(self.messages)
+                        else:
+                            print(f"❌ Fallback Model Failed: {str(fallback_e)}")
+                            return {"type": "text", "content": f"System critically overloaded. Primary: 429. Fallback: {str(fallback_e)}"}
+                else:
+                    # Not a rate limit/overload error, raise normally
+                    raise e
+            
+            
             self.messages.append(response)
-
+            
             if not response.tool_calls:
                 return {"type": "text", "content": response.content}
 
@@ -516,4 +556,4 @@ if __name__ == "__main__":
         if result["type"] == "text":
             print(f"Agent: {result['content']}")
         else:
-            print("Database result received (would be rendered in UI)")
+            print(f"Database result received:  {result} (would be rendered in UI)")
