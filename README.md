@@ -6,6 +6,9 @@ uvicorn app:app --reload --port 8000
 
 Fully dockerized and continuosly updated
 
+Standalone NL2SQL and FileSystem Agent + Semantic Web Searcher on strealit with tool binding demos:
+https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
+
 ## System Architecture & Data Pipeline Matrix
 
 <img width="1669" height="2527" alt="Mutli Agent Supervisor" src="https://github.com/user-attachments/assets/794baadc-83e5-427a-8df7-43e6b3842002" />
@@ -38,7 +41,7 @@ pip install -r requirements.txt
 Launch the Streamlit server to view the app in your browser:
 streamlit run streamlit_app4.py
 
-Alternatively use this link for a live demo: https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
+
 
 uvicorn app:app --reload --port 8000
 
