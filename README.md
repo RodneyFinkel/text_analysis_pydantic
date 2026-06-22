@@ -10,13 +10,18 @@ Standalone NL2SQL and FileSystem Agent + Semantic Web Searcher on streamlit with
 https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
 
 
-## System Architecture & Data Pipeline Matrix
+## Data Pipeline Matrix
+# LangGraph supervisor–worker architecture with a ReAct agent as a subgraph node
 
 <img width="1669" height="2527" alt="Mutli Agent Supervisor" src="https://github.com/user-attachments/assets/794baadc-83e5-427a-8df7-43e6b3842002" />
 
 ##SCREENSHOTS
 
-CHAT UI FOR Single NODE ACCESS or Graph workflows
+CHAT UI FOR Graph workflows
+
+<img width="1911" height="1080" alt="Multi-Agent-Platform" src="https://github.com/user-attachments/assets/f9a3a432-dd04-4114-8420-b8e641a91842" />
+
+OR Single node access for dedicated Agent
 
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
 
