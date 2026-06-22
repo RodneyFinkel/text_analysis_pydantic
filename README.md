@@ -16,7 +16,7 @@ https://rodneyfinkel-text-analysis-pydantic-streamlit-app4-h4ppca.streamlit.app/
 
 ##SCREENSHOTS
 
-CHAT UI FOR NODE ACCESS
+CHAT UI FOR Single NODE ACCESS or Graph workflows
 
 <img width="1918" height="969" alt="Screenshot 2026-06-12 at 6 53 58" src="https://github.com/user-attachments/assets/b82e028c-4ea5-4d42-b318-f6201e790eab" />
 
@@ -24,6 +24,8 @@ CHAT UI FOR NODE ACCESS
 STAND ALONE AGENTS
 
 <img width="1680" height="1050" alt="Screenshot 2026-06-12 at 20 32 40" src="https://github.com/user-attachments/assets/7cac24b1-bd62-44b3-a21f-ce4bb978930a" />
+
+EMAIL & DATA ASSEMBLY AGENT (PARQUET attachments for DB query results) 
 
 <img width="1191" height="910" alt="Screenshot 2026-06-14 at 7 13 48" src="https://github.com/user-attachments/assets/7dac1baf-48e8-4921-b503-5b658ba9d851" />
 
