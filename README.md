@@ -29,7 +29,7 @@ EMAIL & DATA ASSEMBLY AGENT (PARQUET attachments for DB query results)
 
 <img width="1191" height="910" alt="Screenshot 2026-06-14 at 7 13 48" src="https://github.com/user-attachments/assets/7dac1baf-48e8-4921-b503-5b658ba9d851" />
 
-FastAPI Swagger UI for LangGraph Multi Agent and endpoints for DB/Filesystem ReACT Agent and Asyn Semantic Web-Search with ChromaDb persistence
+FastAPI Swagger UI for simple API testing
 
 <img width="954" height="965" alt="Screenshot 2026-06-07 at 4 43 54" src="https://github.com/user-attachments/assets/81cb4910-e0f7-474d-b5e8-aaad1d3289e4" />
 
